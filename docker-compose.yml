@@ -1,0 +1,125 @@
+services:
+  app:
+    build:
+      context: .
+    environment:
+      JOB_INTEL_DB: /data/job_intel.db
+      PORT: "8000"
+      JOB_INTEL_ENV: ${JOB_INTEL_ENV:-development}
+      JOB_INTEL_ALLOWED_HOSTS: ${JOB_INTEL_ALLOWED_HOSTS:-127.0.0.1,localhost}
+      JOB_INTEL_PUBLIC_URL: ${JOB_INTEL_PUBLIC_URL:-http://127.0.0.1:8000}
+      JOB_INTEL_CONTACT_EMAIL: ${JOB_INTEL_CONTACT_EMAIL:-}
+      JOB_INTEL_CORS_ORIGINS: ${JOB_INTEL_CORS_ORIGINS:-}
+      JOB_INTEL_RATE_LIMIT: ${JOB_INTEL_RATE_LIMIT:-120}
+      # Keep this restricted unless a trusted ingress is the only route to the app.
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-127.0.0.1}
+      HEALTHCHECK_HOST: ${HEALTHCHECK_HOST:-127.0.0.1}
+    ports:
+      # Safe default: expose only to the host. Put a TLS reverse proxy in front
+      # before changing this to a public interface.
+      - "127.0.0.1:${HOST_PORT:-8000}:8000"
+    volumes:
+      - job_intel_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "/app/deploy/healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  scheduler:
+    build:
+      context: .
+    command:
+      - python
+      - -m
+      - fortune_intel.cli
+      - run-scheduler
+      - --poll-seconds
+      - "${SCHEDULER_POLL_SECONDS:-60}"
+      - --concurrency
+      - "${SCHEDULER_CONCURRENCY:-4}"
+      - --batch-size
+      - "${SCHEDULER_BATCH_SIZE:-100}"
+    environment:
+      JOB_INTEL_DB: /data/job_intel.db
+      JOB_INTEL_ENV: ${JOB_INTEL_ENV:-development}
+      JOB_INTEL_ALLOWED_HOSTS: ${JOB_INTEL_ALLOWED_HOSTS:-127.0.0.1,localhost}
+      JOB_INTEL_PUBLIC_URL: ${JOB_INTEL_PUBLIC_URL:-http://127.0.0.1:8000}
+      JOB_INTEL_CONTACT_EMAIL: ${JOB_INTEL_CONTACT_EMAIL:-}
+    volumes:
+      - job_intel_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    depends_on:
+      app:
+        condition: service_healthy
+
+  acquisition-scheduler:
+    build:
+      context: .
+    command:
+      - python
+      - -m
+      - fortune_intel.cli
+      - run-acquisition-scheduler
+      - --poll-seconds
+      - "${ACQUISITION_POLL_SECONDS:-60}"
+      - --cadence-seconds
+      - "${ACQUISITION_CADENCE_SECONDS:-86400}"
+      - --batch-size
+      - "${ACQUISITION_BATCH_SIZE:-50}"
+      - --lease-seconds
+      - "${ACQUISITION_LEASE_SECONDS:-300}"
+      - --max-batches
+      - "${ACQUISITION_MAX_BATCHES:-200}"
+      - --actor
+      - "${ACQUISITION_SCHEDULER_ACTOR:-continuous-acquisition-scheduler}"
+      - --lease-owner
+      - "${ACQUISITION_LEASE_OWNER:-continuous-acquisition-1}"
+    environment:
+      JOB_INTEL_DB: /data/job_intel.db
+      JOB_INTEL_ENV: ${JOB_INTEL_ENV:-development}
+      JOB_INTEL_ALLOWED_HOSTS: ${JOB_INTEL_ALLOWED_HOSTS:-127.0.0.1,localhost}
+      JOB_INTEL_PUBLIC_URL: ${JOB_INTEL_PUBLIC_URL:-http://127.0.0.1:8000}
+      JOB_INTEL_CONTACT_EMAIL: ${JOB_INTEL_CONTACT_EMAIL:-}
+      WIKIMEDIA_USER_AGENT: ${WIKIMEDIA_USER_AGENT:-}
+      ATS_POLICY_URLS: ${ATS_POLICY_URLS:-}
+      ATS_POLICY_APPROVED_AT: ${ATS_POLICY_APPROVED_AT:-}
+      SOURCE_SYNC_INTERVAL_MINUTES: ${SOURCE_SYNC_INTERVAL_MINUTES:-60}
+    volumes:
+      - job_intel_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  job_intel_data:

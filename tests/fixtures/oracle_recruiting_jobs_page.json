@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "SearchId": 1,
+      "Offset": 0,
+      "Limit": 25,
+      "TotalJobsCount": 1,
+      "SiteNumber": "CX_4001",
+      "requisitionList": [
+        {
+          "Id": "26069",
+          "Title": "Regional Engineer",
+          "PostedDate": "2026-08-07",
+          "PostingEndDate": null,
+          "PrimaryLocation": "Boston, MA, United States",
+          "PrimaryLocationCountry": "US",
+          "secondaryLocations": [
+            {"Name": "New York, NY, United States"}
+          ]
+        }
+      ]
+    }
+  ],
+  "count": 1,
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0
+}

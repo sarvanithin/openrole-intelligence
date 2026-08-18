@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "Id": "26069",
+      "Title": "Regional Engineer",
+      "RequisitionId": 300000058200381,
+      "ExternalPostedStartDate": "2026-08-07T13:10:20+00:00",
+      "ExternalPostedEndDate": null,
+      "ExternalDescriptionStr": "<p>Oversee engineering operations.</p><p>Build reliable systems.</p>",
+      "PrimaryLocation": "Boston, MA, United States",
+      "PrimaryLocationCountry": "US",
+      "JobSchedule": "Full time",
+      "WorkplaceType": "Hybrid",
+      "workLocation": [],
+      "otherWorkLocations": [],
+      "secondaryLocations": [
+        {"Name": "New York, NY, United States"}
+      ]
+    }
+  ],
+  "count": 1,
+  "hasMore": false,
+  "limit": 25,
+  "offset": 0
+}

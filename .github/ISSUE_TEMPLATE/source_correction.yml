@@ -1,0 +1,41 @@
+name: Source or evidence correction
+description: Correct a company source, job provenance, U.S. location result, or sponsorship evidence tier.
+title: "Correction: "
+labels: ["data-quality", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We value corrections. Please provide public, employer-controlled evidence only. Do not submit guessed URLs, credentials, or applicant data.
+  - type: input
+    id: company
+    attributes:
+      label: Company name
+    validations:
+      required: true
+  - type: dropdown
+    id: correction_type
+    attributes:
+      label: Correction type
+      options:
+        - Official career-source URL
+        - Incorrect job status or freshness
+        - Incorrect U.S. location eligibility
+        - Incorrect sponsorship evidence tier
+        - Company identity or duplicate record
+    validations:
+      required: true
+  - type: input
+    id: official_url
+    attributes:
+      label: Official public URL
+      description: Use an employer-controlled or documented public ATS URL.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What should change, and why?
+      description: Quote only the minimal public evidence needed. Link to the source rather than copying a full posting.
+    validations:
+      required: true

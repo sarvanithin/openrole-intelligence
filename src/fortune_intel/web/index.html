@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Explainable job and H-1B sponsorship intelligence." />
+    <title>OpenRole Intelligence</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=7" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="OpenRole Intelligence home">
+        <span class="brand-mark">O</span>
+        <span>OpenRole <strong>Intelligence</strong></span>
+      </a>
+      <nav aria-label="Primary">
+        <a class="active" href="#jobs">Job explorer</a>
+        <a href="/companies">Companies</a>
+        <a href="/h1b-employers">H-1B employers</a>
+        <a href="/trust">Trust &amp; methodology</a>
+        <a href="/docs">API</a>
+      </nav>
+      <span id="source-status" class="live"><i></i> Freshness tracking ready</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span>Evidence, not promises</span></div>
+        <h1>Find roles with a clearer<br /><em>sponsorship signal.</em></h1>
+        <p>
+          U.S. openings recently verified at approved employer career sites, paired with
+          explainable H-1B evidence from job text and official employer history.
+        </p>
+        <form id="search-form" class="search-panel">
+          <label>
+            <span>Role or skill</span>
+            <input id="query" name="q" placeholder="e.g. data engineer" autocomplete="off" />
+          </label>
+          <label>
+            <span>Location</span>
+            <input id="location" name="location" placeholder="U.S. city, state, or Remote US" autocomplete="off" />
+          </label>
+          <label>
+            <span>Sponsorship evidence</span>
+            <select id="tier" name="tier">
+              <option value="">All evidence tiers</option>
+              <option value="A">A · Job-specific offer detected</option>
+              <option value="B">B · Strong history</option>
+              <option value="C">C · Employer history</option>
+              <option value="D">D · Insufficient evidence</option>
+              <option value="E">E · Negative language detected</option>
+            </select>
+          </label>
+          <button type="submit">Explore roles <span>→</span></button>
+        </form>
+        <p class="disclaimer">
+          Historical evidence is not a guarantee or legal advice. Every signal
+          links back to the reason it was assigned.
+        </p>
+      </section>
+
+      <section class="stats" aria-label="Platform summary">
+        <article><strong id="stat-jobs">—</strong><span>Active U.S. jobs</span></article>
+        <article><strong id="stat-companies">—</strong><span>Companies</span></article>
+        <article><strong id="stat-fetching-companies">—</strong><span>Live companies</span></article>
+        <article><strong id="stat-h1b">—</strong><span>H-1B employers</span></article>
+        <article><strong id="stat-evidence">—</strong><span>Jobs with evidence</span></article>
+        <article><strong id="stat-freshness">—</strong><span>Last verified</span></article>
+      </section>
+
+      <section id="jobs" class="explorer">
+        <div class="section-heading">
+          <div>
+          <span id="explorer-kicker" class="kicker">Job explorer</span>
+            <h2>Current openings</h2>
+          </div>
+          <p id="result-count" aria-live="polite">Loading jobs…</p>
+        </div>
+        <div id="job-list" class="job-list" aria-live="polite"></div>
+        <div id="empty-state" class="empty" hidden>
+          <strong>No matching roles</strong>
+          <span>Try a broader search or another evidence tier.</span>
+        </div>
+      </section>
+
+      <section id="methodology" class="methodology">
+        <div>
+          <span class="kicker">How it works</span>
+          <h2>A signal you can inspect.</h2>
+          <p>
+            We separate what a current posting says from what an employer has
+            historically done. An explicit “no sponsorship” always overrides
+            company history.
+          </p>
+        </div>
+        <ol>
+          <li><span>01</span><div><strong>Verify the source</strong><p>Jobs come from canonical employer or public ATS endpoints and carry a last-seen time.</p></div></li>
+          <li><span>02</span><div><strong>Read current policy</strong><p>Precise posting language produces an auditable excerpt—never an invented claim.</p></div></li>
+          <li><span>03</span><div><strong>Ground employer history</strong><p>High-confidence entity matches connect reviewed DOL history. USCIS evidence is planned and is never implied when unavailable.</p></div></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer>
+      <span>Evidence-first job intelligence</span>
+      <span><a href="/trust">Trust &amp; methodology</a> · Built for transparency, freshness, and correction.</span>
+    </footer>
+    <script src="/assets/app.js?v=7" defer></script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a reproducible problem in the application, API, or connector.
+title: "Bug: "
+labels: ["bug", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve OpenRole. Do not include credentials, applicant data, or private job details.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Tell us what you expected and what you observed.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit, release, or deployment version
+  - type: textarea
+    id: context
+    attributes:
+      label: Relevant logs or screenshots
+      description: Remove tokens, URLs with private query values, and personal information.

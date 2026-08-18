@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation and methodology
+    url: https://github.com/sarvanithin/openrole-intelligence/tree/main/docs
+    about: Read the collection and evidence methodology before reporting a source issue.
+  - name: Security vulnerability
+    url: https://github.com/sarvanithin/openrole-intelligence/security/advisories/new
+    about: Report security vulnerabilities privately. Do not open a public issue.

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Search employers in official DOL H-1B LCA disclosure data." />
+    <title>H-1B Employers · OpenRole Intelligence</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=4" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/"><span class="brand-mark">O</span><span>OpenRole <strong>Intelligence</strong></span></a>
+      <nav aria-label="Primary"><a href="/">Jobs</a><a href="/companies">Companies</a><a class="active" href="/h1b-employers">H-1B employers</a><a href="/trust">Methodology</a><a href="/docs">API</a></nav>
+    </header>
+    <main class="directory-page">
+      <span class="kicker">Official employer history</span>
+      <h1>H-1B employer directory.</h1>
+      <p class="lead">Search legal employer names appearing in imported Department of Labor certified H-1B LCA disclosure data.</p>
+      <form id="employer-search" class="directory-search">
+        <label for="employer-query">Employer name</label>
+        <input id="employer-query" placeholder="e.g. Microsoft" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <div class="directory-summary">
+        <strong id="employer-total">—</strong><span>employers in latest imported fiscal-year release</span>
+        <strong id="employer-year">—</strong><span>latest fiscal year</span>
+        <strong id="exact-h1b-companies">—</strong><span>exact reviewed company links</span>
+        <strong id="exact-h1b-sites">—</strong><span>with verified official discovery sources</span>
+        <strong id="exact-h1b-feeds">—</strong><span>with successful current job feeds</span>
+      </div>
+      <p class="disclaimer">A certified LCA is historical employer evidence—not proof that a petition was filed or approved, not a unique-hire count, and not a promise that a current role sponsors.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Employer</th><th>Fiscal year</th><th>LCA worker positions</th><th>Source</th></tr></thead>
+          <tbody id="employer-list"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="previous-page" type="button">← Previous</button>
+        <span id="employer-range" aria-live="polite">Loading…</span>
+        <button id="next-page" type="button">Next →</button>
+      </div>
+    </main>
+    <footer><span>Evidence-first job intelligence</span><span><a href="/trust">Trust &amp; methodology</a> · <a href="/docs">API</a></span></footer>
+    <script src="/assets/h1b.js?v=3" defer></script>
+  </body>
+</html>

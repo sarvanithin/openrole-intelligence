@@ -1,0 +1,2 @@
+company_name,kind,board_token,base_url,terms_url,policy_approved_at,owner_contact,sync_interval_minutes,enabled
+Northstar Systems,greenhouse,northstar,https://boards.greenhouse.io/northstar,https://example.org/source-policy,2026-08-06T12:00:00Z,data-owner@example.org,60,true

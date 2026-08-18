@@ -1,0 +1,25 @@
+{
+  "jobPostingInfo": {
+    "id": "37948d47057610009d0b1063dfd20000",
+    "title": "Software Development Engineer",
+    "jobDescription": "<p>Build &amp; ship reliable services.</p>",
+    "location": "Canada, BC, Vancouver",
+    "additionalLocations": ["Canada, ON, Toronto"],
+    "postedOn": "Posted Today",
+    "startDate": "2026-08-07",
+    "timeType": "Full Time",
+    "jobReqId": "JR-0108831",
+    "jobPostingId": "Software-Development-Engineer_JR-0108831",
+    "jobPostingSiteId": "Workday",
+    "remoteType": "Flex",
+    "canApply": true,
+    "posted": true,
+    "externalUrl": "https://workday.wd5.myworkdayjobs.com/Workday/job/Canada-BC-Vancouver/Software-Development-Engineer_JR-0108831"
+  },
+  "hiringOrganization": {
+    "name": "Canada Workday ULC",
+    "url": ""
+  },
+  "similarJobs": [],
+  "userAuthenticated": false
+}

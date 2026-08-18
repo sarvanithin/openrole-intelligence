@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fortune-job-intelligence"
+version = "0.1.0"
+description = "Open-source, evidence-based job and H-1B sponsorship intelligence"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+  "beautifulsoup4>=4.12.0",
+  "fastapi>=0.115.0",
+  "openpyxl>=3.1.0",
+  "requests>=2.31.0",
+  "uvicorn[standard]>=0.30.0",
+]
+
+[project.optional-dependencies]
+legacy = [
+  "google-api-python-client>=2.100.0",
+  "google-auth-httplib2>=0.1.1",
+  "google-auth-oauthlib>=1.1.0",
+  "lxml>=5.0.0",
+  "pandas>=2.0.0",
+  "playwright>=1.40.0",
+  "python-dotenv>=1.0.0",
+]
+dev = [
+  "httpx>=0.27.0",
+  "pip-audit>=2.9.0",
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "ruff>=0.16.0",
+]
+
+[project.scripts]
+job-intel = "fortune_intel.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fortune_intel = ["web/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100

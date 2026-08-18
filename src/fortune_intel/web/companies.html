@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Search the public-company universe and inspect current job-source coverage." />
+    <title>Companies · OpenRole Intelligence</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=4" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/"><span class="brand-mark">O</span><span>OpenRole <strong>Intelligence</strong></span></a>
+      <nav aria-label="Primary"><a href="/">Jobs</a><a class="active" href="/companies">Companies</a><a href="/h1b-employers">H-1B employers</a><a href="/trust">Methodology</a><a href="/docs">API</a></nav>
+    </header>
+    <main class="directory-page">
+      <span class="kicker">Public company universe</span>
+      <h1>Company directory.</h1>
+      <p class="lead">Search companies imported from the official SEC ticker and CIK dataset. Job counts appear only when a reviewed career source is registered and successfully synchronized.</p>
+      <form id="company-search" class="directory-search">
+        <label for="company-query">Company name</label>
+        <input id="company-query" placeholder="e.g. Microsoft" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <div class="directory-summary">
+        <strong id="company-total">—</strong><span>matching companies</span>
+        <strong id="company-covered">—</strong><span>on this page with active job coverage</span>
+      </div>
+      <p class="disclaimer">A company’s inclusion does not mean its entire career site is covered. “Not yet covered” is reported explicitly until a reviewed source produces a complete manifest.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Company</th><th>Active jobs</th><th>Source last succeeded</th><th>Coverage</th></tr></thead>
+          <tbody id="company-list"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="previous-page" type="button">← Previous</button>
+        <span id="company-range" aria-live="polite">Loading…</span>
+        <button id="next-page" type="button">Next →</button>
+      </div>
+    </main>
+    <footer><span>Evidence-first job intelligence</span><span><a href="/trust">Trust &amp; methodology</a> · <a href="/docs">API</a></span></footer>
+    <script src="/assets/companies.js?v=3" defer></script>
+  </body>
+</html>

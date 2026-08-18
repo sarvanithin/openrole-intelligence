@@ -1,0 +1,65 @@
+# Environment
+.env
+credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
+.claude-flow/
+.claude/
+
+# Local databases and source data
+*.db
+*.db-shm
+*.db-wal
+data/raw/
+data/imports/
+data/exports/
+data/backups/
+data/overnight_runs/
+data/*.scheduler.lock
+data/*.lock
+*.parquet
+/companies*.csv
+/data/private/
+.swarm/

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="OpenRole Intelligence public API guide." />
+    <title>API · OpenRole Intelligence</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=4" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="OpenRole Intelligence home">
+        <span class="brand-mark">O</span><span>OpenRole <strong>Intelligence</strong></span>
+      </a>
+      <nav aria-label="Primary"><a href="/">Jobs</a><a href="/companies">Companies</a><a href="/h1b-employers">H-1B employers</a><a href="/trust">Methodology</a><a class="active" href="/docs">API</a></nav>
+    </header>
+    <main class="trust-page">
+      <span class="kicker">Public read-only API</span>
+      <h1>Build from evidence.</h1>
+      <p class="lead">Search verified U.S. openings, inspect H-1B evidence tiers, and monitor source freshness. Responses are JSON, bounded, paginated, and rate limited.</p>
+      <section>
+        <h2>Endpoints</h2>
+        <div class="endpoint"><code>GET /api/jobs</code><p>Search definite U.S. roles with <code>q</code>, <code>company</code>, <code>location</code>, <code>tier</code>, <code>status</code>, <code>limit</code>, and <code>offset</code>. Ambiguous and non-U.S. locations are never returned.</p></div>
+        <div class="endpoint"><code>GET /api/jobs/{id}</code><p>Read a privacy-limited description excerpt and the evidence used for one assessment.</p></div>
+        <div class="endpoint"><code>GET /api/companies</code><p>Search public company identities with <code>q</code>, <code>limit</code>, and <code>offset</code>; inspect active-job coverage and freshness.</p></div>
+        <div class="endpoint"><code>GET /api/coverage</code><p>Inspect the complete company denominator and auditable discovery, approval, and successful-source counts. Directory inclusion alone is not coverage.</p></div>
+        <div class="endpoint"><code>GET /api/h1b-employers</code><p>Search legal employer names from imported official DOL H-1B disclosure data.</p></div>
+        <div class="endpoint"><code>GET /api/sources/status</code><p>Inspect public source health without internal URLs or error details.</p></div>
+        <div class="endpoint"><code>GET /api/methodology</code><p>Read machine-readable tier definitions and the legal disclaimer.</p></div>
+      </section>
+      <section>
+        <h2>Machine-readable contract</h2>
+        <p>The complete OpenAPI 3 document is available at <a href="/api/openapi.json"><code>/api/openapi.json</code></a>. Treat evidence scores as ordering signals, never sponsorship probabilities.</p>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <pre><code>curl 'https://your-host.example/api/jobs?q=data&amp;tier=A&amp;limit=25'</code></pre>
+      </section>
+    </main>
+    <footer><span>Evidence-first job intelligence</span><span><a href="/">Explore jobs</a> · <a href="/trust">Trust &amp; methodology</a></span></footer>
+  </body>
+</html>
