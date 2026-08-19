@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-
 SPONSORSHIP_RULE_VERSION = "rules-1.2"
 
 

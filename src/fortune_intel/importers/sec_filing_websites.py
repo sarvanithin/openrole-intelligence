@@ -7,9 +7,9 @@ investor-only sites, and third-party hosts are deliberately excluded.
 
 from __future__ import annotations
 
-import threading
 import json
 import re
+import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping
@@ -38,7 +38,7 @@ _BASE_FORMS = {"10-K", "10-KT", "20-F", "40-F"}
 _AMENDED_FORMS = {"10-K/A", "10-K-A", "10-KT/A", "20-F/A", "40-F/A"}
 _RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 _ACCESSION_RE = re.compile(r"^\d{10}-\d{2}-\d{6}$")
-_DOCUMENT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*\.(?:html?|txt)$", re.I)
+_DOCUMENT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*\.(?:html?|txt)$", re.IGNORECASE)
 _READY_PREVIEW_LIMIT = 250
 
 
@@ -318,7 +318,7 @@ class SecFilingWebsiteClient:
             by_host[host].append(item)
         if len(by_host) != 1:
             return "conflicts", None
-        selected = sorted(next(iter(by_host.values())), key=lambda item: item.website_url)[0]
+        selected = min(next(iter(by_host.values())), key=lambda item: item.website_url)
         return "candidate", SecFilingWebsite(
             cik,
             company_name,

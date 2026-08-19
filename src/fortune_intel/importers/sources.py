@@ -11,8 +11,8 @@ from urllib.parse import urlsplit
 from fortune_intel.connectors.adp_workforce_now import (
     parse_adp_workforce_now_source_key,
 )
-from fortune_intel.connectors.oracle_recruiting import parse_oracle_recruiting_source_key
 from fortune_intel.connectors.official_structured import parse_official_structured_source_key
+from fortune_intel.connectors.oracle_recruiting import parse_oracle_recruiting_source_key
 from fortune_intel.connectors.ukg_recruiting_public import (
     parse_ukg_recruiting_public_source_key,
 )
@@ -119,7 +119,9 @@ def _registration(row: dict[str, str], row_number: int) -> SourceRegistration:
         try:
             structured = parse_official_structured_source_key(required["board_token"])
         except ValueError as error:
-            raise ValueError(f"row {row_number}: invalid official structured board_token") from error
+            raise ValueError(
+                f"row {row_number}: invalid official structured board_token"
+            ) from error
         approved_host = required["base_url"] == structured.public_base_url
     if kind == "adp_workforce_now":
         try:

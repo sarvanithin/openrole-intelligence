@@ -33,9 +33,7 @@ _NEGATIVE_RULES = (
         r"(?:unable|not able) to (?:provide|offer) " + _IMMIGRATION_SPONSORSHIP,
         re.IGNORECASE,
     ),
-    re.compile(
-        r"(?:will|do|does|can) not sponsor|cannot sponsor|won't sponsor", re.IGNORECASE
-    ),
+    re.compile(r"(?:will|do|does|can) not sponsor|cannot sponsor|won't sponsor", re.IGNORECASE),
     re.compile(
         r"\bno\b[^.!?]{0,90}?\b"
         r"(?:employment|immigration|visa|h\s*[- ]?\s*1\s*[- ]?\s*b)\s+"
@@ -44,8 +42,7 @@ _NEGATIVE_RULES = (
         re.IGNORECASE,
     ),
     re.compile(
-        r"(?:not\s+(?:currently\s+)?eligible|ineligible)\s+for\s+"
-        + _IMMIGRATION_SPONSORSHIP,
+        r"(?:not\s+(?:currently\s+)?eligible|ineligible)\s+for\s+" + _IMMIGRATION_SPONSORSHIP,
         re.IGNORECASE,
     ),
     re.compile(
@@ -76,7 +73,9 @@ _ROLE_SCOPED_POSITIVE_RULES = (
         re.IGNORECASE,
     ),
     re.compile(
-        r"(?:this|the|your)\s+" + _ROLE + r"\s+(?:is|will be)\s+eligible\s+for\s+"
+        r"(?:this|the|your)\s+"
+        + _ROLE
+        + r"\s+(?:is|will be)\s+eligible\s+for\s+"
         + _IMMIGRATION_SPONSORSHIP,
         re.IGNORECASE,
     ),

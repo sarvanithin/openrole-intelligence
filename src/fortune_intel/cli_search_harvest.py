@@ -19,7 +19,9 @@ def add_search_harvest_parser(commands: argparse._SubParsersAction[Any]) -> None
         "harvest-search-ats-results",
         help="Verify recorded search-result ATS URLs; creates candidates only, never live sources",
     )
-    harvest.add_argument("results_jsonl", help="Recorded permitted-provider results; one JSON object per line")
+    harvest.add_argument(
+        "results_jsonl", help="Recorded permitted-provider results; one JSON object per line"
+    )
     harvest.add_argument("--policy", action="append", required=True, metavar="KIND=URL")
     harvest.add_argument("--policy-approved-at", required=True)
     harvest.add_argument("--actor", required=True)
@@ -37,7 +39,9 @@ def _policy_urls(values: list[str]) -> dict[str, str]:
     return policies
 
 
-def run_search_harvest_command(args: argparse.Namespace, repository: JobRepository) -> dict[str, int]:
+def run_search_harvest_command(
+    args: argparse.Namespace, repository: JobRepository
+) -> dict[str, int]:
     return harvest_verified_search_ats_results(
         repository,
         load_recorded_search_results(args.results_jsonl),

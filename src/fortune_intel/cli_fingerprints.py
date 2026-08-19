@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from fortune_intel.services.fingerprint_reclassification import (
-    reclassify_passive_fingerprints,
-)
+from fortune_intel.services.audited_redirect_promotion import promote_audited_redirects
 from fortune_intel.services.fingerprint_candidate_promotion import (
     promote_verified_seed_fingerprints,
 )
-from fortune_intel.services.audited_redirect_promotion import promote_audited_redirects
+from fortune_intel.services.fingerprint_reclassification import (
+    reclassify_passive_fingerprints,
+)
 
 
 def add_fingerprint_parser(commands: Any) -> None:

@@ -291,7 +291,7 @@ class ADPWorkforceNowConnector:
     @staticmethod
     def _nonnegative_integer(value: object, label: str) -> int:
         if isinstance(value, bool):
-            raise ValueError(f"{label} must be a non-negative integer")
+            raise TypeError(f"{label} must be a non-negative integer")
         try:
             result = int(str(value))
         except (TypeError, ValueError) as error:

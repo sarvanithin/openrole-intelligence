@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from fortune_intel.connectors.ashby import AshbyConnector
+from fortune_intel.connectors.adp_workforce_now import ADPWorkforceNowConnector
 from fortune_intel.connectors.amazon_jobs import AmazonJobsConnector
 from fortune_intel.connectors.apple_jobs import AppleJobsConnector
-from fortune_intel.connectors.adp_workforce_now import ADPWorkforceNowConnector
+from fortune_intel.connectors.ashby import AshbyConnector
 from fortune_intel.connectors.greenhouse import GreenhouseConnector
 from fortune_intel.connectors.http import JsonHttpClient
 from fortune_intel.connectors.icims import ICIMSPolicyHeldConnector
 from fortune_intel.connectors.icims_public import ICIMSPublicConnector
 from fortune_intel.connectors.lever import LeverConnector
-from fortune_intel.connectors.oracle_recruiting import OracleRecruitingConnector
 from fortune_intel.connectors.official_structured import OfficialStructuredConnector
+from fortune_intel.connectors.oracle_recruiting import OracleRecruitingConnector
 from fortune_intel.connectors.smartrecruiters import SmartRecruitersConnector
 from fortune_intel.connectors.ukg_recruiting_public import UKGRecruitingPublicConnector
 from fortune_intel.connectors.workday import WorkdayConnector

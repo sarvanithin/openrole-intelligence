@@ -104,7 +104,9 @@ def _lead(row: dict[str, str], row_number: int) -> WebsiteLead:
         license_reviewed_at=_timestamp(
             required["license_reviewed_at"], field="license_reviewed_at", row_number=row_number
         ),
-        retrieved_at=_timestamp(required["retrieved_at"], field="retrieved_at", row_number=row_number),
+        retrieved_at=_timestamp(
+            required["retrieved_at"], field="retrieved_at", row_number=row_number
+        ),
         actor=required["actor"],
     )
 

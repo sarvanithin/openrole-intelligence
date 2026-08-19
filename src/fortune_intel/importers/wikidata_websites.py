@@ -188,7 +188,7 @@ class WikidataWebsiteClient:
             except (KeyError, TypeError) as error:
                 raise RuntimeError("Wikidata response did not contain SPARQL bindings") from error
             if not isinstance(bindings, list):
-                raise RuntimeError("Wikidata SPARQL bindings must be a list")
+                raise TypeError("Wikidata SPARQL bindings must be a list")
             requested = set(page)
             for binding in bindings:
                 candidate = _parse_binding(binding, requested)

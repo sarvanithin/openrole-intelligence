@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import json
 import sqlite3
 
@@ -254,12 +255,26 @@ _REQUIRED_COLUMNS = {
         "created_at",
         "updated_at",
     },
-    "career_sources": set(
-        "id company_id kind board_token base_url enabled sync_interval_minutes "
-        "last_started_at last_success_at next_sync_at consecutive_failures "
-        "consecutive_complete_empty_observations last_error terms_url "
-        "policy_approved_at owner_contact created_at updated_at".split()
-    ),
+    "career_sources": {
+        "id",
+        "company_id",
+        "kind",
+        "board_token",
+        "base_url",
+        "enabled",
+        "sync_interval_minutes",
+        "last_started_at",
+        "last_success_at",
+        "next_sync_at",
+        "consecutive_failures",
+        "consecutive_complete_empty_observations",
+        "last_error",
+        "terms_url",
+        "policy_approved_at",
+        "owner_contact",
+        "created_at",
+        "updated_at",
+    },
     "jobs": {
         "id",
         "company_id",

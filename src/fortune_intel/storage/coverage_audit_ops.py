@@ -6,7 +6,6 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from typing import Any
 
-
 COVERAGE_AUDIT_GATES = (
     "identity_verified",
     "portal_seed_verified",

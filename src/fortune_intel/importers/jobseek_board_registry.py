@@ -23,7 +23,6 @@ from fortune_intel.discovery.ats import AtsSourceCandidate, classify_ats_url
 from fortune_intel.storage import JobRepository
 from fortune_intel.storage.coverage_schema import FINGERPRINT_FAMILIES
 
-
 JOBSEEK_REPOSITORY_URL = "https://github.com/colophon-group/jobseek"
 JOBSEEK_BOARDS_PATH = "apps/crawler/data/boards.csv"
 JOBSEEK_COMPANIES_PATH = "apps/crawler/data/companies.csv"
@@ -93,7 +92,7 @@ def _config(value: str, *, field: str, row_number: int) -> dict[str, Any]:
     except json.JSONDecodeError as error:
         raise ValueError(f"row {row_number}: invalid {field} JSON") from error
     if not isinstance(decoded, dict):
-        raise ValueError(f"row {row_number}: {field} must be a JSON object")
+        raise TypeError(f"row {row_number}: {field} must be a JSON object")
     return decoded
 
 

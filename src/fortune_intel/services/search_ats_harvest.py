@@ -18,11 +18,11 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Callable, Iterable, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable, Iterable, Mapping
 
 from fortune_intel.discovery.ats import AtsSourceCandidate, classify_ats_url
 from fortune_intel.services.licensed_lead_verification import (
@@ -34,8 +34,8 @@ from fortune_intel.storage import JobRepository
 from fortune_intel.storage.coverage_ops import normalize_public_url
 
 _COMPANY_WORD = re.compile(r"[a-z0-9]+")
-_CAREER_QUERY_WORD = re.compile(r"\b(career|careers|job|jobs|employment|hiring)\b", re.I)
-_PROVIDER = re.compile(r"^[a-z0-9][a-z0-9_.-]{1,79}$", re.I)
+_CAREER_QUERY_WORD = re.compile(r"\b(career|careers|job|jobs|employment|hiring)\b", re.IGNORECASE)
+_PROVIDER = re.compile(r"^[a-z0-9][a-z0-9_.-]{1,79}$", re.IGNORECASE)
 _MAX_RESULTS_PER_RUN = 2_000
 _MAX_CONCURRENCY = 20
 
@@ -88,7 +88,9 @@ def recorded_search_result(row: Mapping[str, object], *, line: int) -> RecordedS
     provider = _required(row, "provider", line=line).casefold()
     if _PROVIDER.fullmatch(provider) is None:
         raise ValueError(f"line {line}: provider must be a compact provider identifier")
-    company_words = {word for word in _COMPANY_WORD.findall(company_name.casefold()) if len(word) > 2}
+    company_words = {
+        word for word in _COMPANY_WORD.findall(company_name.casefold()) if len(word) > 2
+    }
     query_words = set(_COMPANY_WORD.findall(query.casefold()))
     if not company_words.intersection(query_words) or _CAREER_QUERY_WORD.search(query) is None:
         raise ValueError(
@@ -134,7 +136,7 @@ def load_recorded_search_results(path: str | Path) -> list[RecordedSearchResult]
             except json.JSONDecodeError as error:
                 raise ValueError(f"line {line_number}: invalid JSON") from error
             if not isinstance(item, dict):
-                raise ValueError(f"line {line_number}: each JSONL entry must be an object")
+                raise TypeError(f"line {line_number}: each JSONL entry must be an object")
             entries.append(recorded_search_result(item, line=line_number))
     return entries
 
@@ -177,7 +179,9 @@ def harvest_verified_search_ats_results(
         raise ValueError("policy_approved_at is required")
     validated = list(results)
     if len(validated) > _MAX_RESULTS_PER_RUN:
-        raise ValueError(f"at most {_MAX_RESULTS_PER_RUN} recorded results may be harvested per run")
+        raise ValueError(
+            f"at most {_MAX_RESULTS_PER_RUN} recorded results may be harvested per run"
+        )
     if not 1 <= concurrency <= _MAX_CONCURRENCY:
         raise ValueError(f"concurrency must be between 1 and {_MAX_CONCURRENCY}")
     seen: set[tuple[int, str]] = set()
@@ -191,7 +195,9 @@ def harvest_verified_search_ats_results(
                 "SELECT name FROM companies WHERE id = ?", (item.company_id,)
             ).fetchone()
             if company is None or str(company["name"]) != item.company_name:
-                raise ValueError("exact company identity mismatch: company_id and company_name must match")
+                raise ValueError(
+                    "exact company identity mismatch: company_id and company_name must match"
+                )
 
     report = {
         "input": len(validated),

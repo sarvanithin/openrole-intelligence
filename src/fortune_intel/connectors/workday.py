@@ -257,7 +257,7 @@ class WorkdayConnector:
             raise TypeError("job-list payload must contain a jobPostings object list")
         total_value = payload.get("total")
         if isinstance(total_value, bool):
-            raise ValueError("job-list total must be a non-negative integer")
+            raise TypeError("job-list total must be a non-negative integer")
         try:
             total = int(str(total_value))
         except (TypeError, ValueError) as error:

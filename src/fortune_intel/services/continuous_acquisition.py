@@ -6,22 +6,23 @@ import time
 from collections import Counter
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
+
 from fortune_intel.observability import log_event
+from fortune_intel.services.acquisition_planning import (
+    ACQUISITION_STAGES,
+    create_acquisition_plan,
+)
 from fortune_intel.services.acquisition_scheduler import (
     DEFAULT_CADENCE_SECONDS,
     _plan_name,
     _validate_limits,
 )
-from fortune_intel.services.acquisition_planning import (
-    ACQUISITION_STAGES,
-    create_acquisition_plan,
-)
 from fortune_intel.services.acquisition_worker import run_acquisition_worker
-from fortune_intel.services.licensed_lead_verification import promote_verified_discovery_leads
-from fortune_intel.services.licensed_website_verification import promote_verified_website_leads
 from fortune_intel.services.fingerprint_candidate_promotion import (
     promote_verified_seed_fingerprints,
 )
+from fortune_intel.services.licensed_lead_verification import promote_verified_discovery_leads
+from fortune_intel.services.licensed_website_verification import promote_verified_website_leads
 from fortune_intel.services.registry_career_portal_runner import (
     run_registry_career_portal_verifier,
 )
@@ -247,13 +248,17 @@ def run_continuous_acquisition_cycle(
         actor=actor,
         limit=batch_size,
     )
-    lead_verification = promote_verified_discovery_leads(
-        repository,
-        actor=actor,
-        policy_urls=policies,
-        policy_approved_at=policy_approved_at,
-        limit=batch_size,
-    ) if policies else {"scanned": 0, "verified": 0, "rejected": 0, "skipped": 0}
+    lead_verification = (
+        promote_verified_discovery_leads(
+            repository,
+            actor=actor,
+            policy_urls=policies,
+            policy_approved_at=policy_approved_at,
+            limit=batch_size,
+        )
+        if policies
+        else {"scanned": 0, "verified": 0, "rejected": 0, "skipped": 0}
+    )
     stages = [
         _run_stage(
             repository,

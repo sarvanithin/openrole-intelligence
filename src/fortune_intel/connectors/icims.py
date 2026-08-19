@@ -7,8 +7,8 @@ not an ingestible API contract. This connector intentionally performs no HTTP.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 from fortune_intel.connectors.http import JsonHttpClient

@@ -5,9 +5,10 @@ from __future__ import annotations
 import ipaddress
 import socket
 from collections import deque
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from html.parser import HTMLParser
-from typing import Iterable, Mapping, Protocol
+from typing import Protocol
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.robotparser import RobotFileParser
 
@@ -228,9 +229,11 @@ class _HrefCollector(HTMLParser):
         media_type = values.get("type", "").partition(";")[0].strip().casefold()
         if tag.casefold() == "link" and (
             "sitemap" in rel
-            or ("alternate" in rel and media_type in {
-                "application/rss+xml", "application/atom+xml", "application/xml", "text/xml"
-            })
+            or (
+                "alternate" in rel
+                and media_type
+                in {"application/rss+xml", "application/atom+xml", "application/xml", "text/xml"}
+            )
         ):
             self.structured_hrefs.append(href)
 
@@ -356,7 +359,7 @@ class CareerSourceDiscovery:
 
     @staticmethod
     def _boundary(initial_host: str) -> str:
-        return initial_host[4:] if initial_host.startswith("www.") else initial_host
+        return initial_host.removeprefix("www.")
 
     @staticmethod
     def _same_company(host: str, boundary: str) -> bool:
@@ -634,13 +637,17 @@ class CareerSourceDiscovery:
                     origin=f"structured manifest link on {result.final_url}",
                 )
                 if candidate is not None:
-                    candidates[(candidate.connector_kind, candidate.board_token.casefold())] = candidate
+                    candidates[(candidate.connector_kind, candidate.board_token.casefold())] = (
+                        candidate
+                    )
             links = tuple(dict.fromkeys((*collector.hrefs, *collector.career_data_hrefs)))
             for href, link_text in links[: self.max_links_per_page]:
                 target = urljoin(result.final_url, href)
                 if classify_ats_url(target) is not None:
                     continue
-                has_career_marker = has_career_url_marker(target) or _has_career_link_text(link_text)
+                has_career_marker = has_career_url_marker(target) or _has_career_link_text(
+                    link_text
+                )
                 passive = classify_passive_ats_url(target, origin_page=result.final_url)
                 if passive is None and not has_career_marker:
                     continue
@@ -654,7 +661,9 @@ class CareerSourceDiscovery:
                     origin=f"explicit sitemap/feed anchor on {result.final_url}",
                 )
                 if same_company and structured is not None:
-                    candidates[(structured.connector_kind, structured.board_token.casefold())] = structured
+                    candidates[(structured.connector_kind, structured.board_token.casefold())] = (
+                        structured
+                    )
                     continue
                 passive = classify_passive_or_unknown_url(target_url, origin_page=result.final_url)
                 if same_company and passive is not None and passive.family == "unknown_external":

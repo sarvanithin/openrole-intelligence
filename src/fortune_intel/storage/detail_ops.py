@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from fortune_intel.storage.schema import SCHEMA_VERSION, validate_schema
 from fortune_intel.storage.job_geography import validate_job_geography
+from fortune_intel.storage.schema import SCHEMA_VERSION, validate_schema
 
 
 class DetailOperationsMixin:

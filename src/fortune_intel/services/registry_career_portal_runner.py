@@ -16,7 +16,6 @@ from fortune_intel.services.registry_career_portal_verification import (
 )
 from fortune_intel.storage import JobRepository
 
-
 _AUTO_APPROVAL_KINDS = frozenset(
     {
         "amazon_jobs",
@@ -94,7 +93,12 @@ def run_registry_career_portal_verifier(
 
     totals = {"scanned": 0, "verified": 0, "rejected": 0, "skipped": 0}
     handoff_totals = {"companies": 0, "candidates": 0, "fingerprints": 0}
-    approval_totals = {"candidates_selected": 0, "activated": 0, "empty_pending_verification": 0, "probe_failed": 0}
+    approval_totals = {
+        "candidates_selected": 0,
+        "activated": 0,
+        "empty_pending_verification": 0,
+        "probe_failed": 0,
+    }
     batches: list[dict[str, object]] = []
     status = "batch_limit_reached"
     for batch_number in range(1, max_batches + 1):
@@ -182,7 +186,9 @@ def run_registry_career_portal_verifier(
     }
 
 
-def _companies_by_id(repository: JobRepository, company_ids: tuple[int, ...]) -> list[dict[str, Any]]:
+def _companies_by_id(
+    repository: JobRepository, company_ids: tuple[int, ...]
+) -> list[dict[str, Any]]:
     """Read only IDs just returned by the verifier, preserving that order."""
 
     unique_ids = tuple(dict.fromkeys(company_ids))

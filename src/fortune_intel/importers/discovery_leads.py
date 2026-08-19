@@ -101,9 +101,7 @@ def _lead(row: dict[str, str], row_number: int) -> DiscoveryLead:
         # Supported connector families are deliberately stored in passive inventory,
         # whose current schema uses unknown_external for non-policy-held families.
         passive_kind = (
-            "icims"
-            if classified.connector_kind == "icims_public"
-            else classified.connector_kind
+            "icims" if classified.connector_kind == "icims_public" else classified.connector_kind
         )
         family = passive_kind if passive_kind in FINGERPRINT_FAMILIES else "unknown_external"
         proposed_kind = classified.connector_kind

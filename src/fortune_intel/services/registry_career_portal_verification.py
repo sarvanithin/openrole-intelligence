@@ -13,10 +13,10 @@ from __future__ import annotations
 import ipaddress
 import json
 import socket
-from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Callable, Iterable
-from datetime import UTC, datetime
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from urllib.parse import urlsplit, urlunsplit
 
 from fortune_intel.services.licensed_lead_verification import (
@@ -266,7 +266,10 @@ def promote_verified_registry_career_portals(
                 fingerprint_id=int(row["fingerprint_id"]),
                 evidence=evidence,
                 status="rejected",
-                details={"reason": "redirect_or_canonical_url_changed", "final_url": page.final_url},
+                details={
+                    "reason": "redirect_or_canonical_url_changed",
+                    "final_url": page.final_url,
+                },
             )
             report["rejected"] += 1
             continue

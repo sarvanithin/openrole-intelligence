@@ -21,16 +21,18 @@ def verified_company_seed_evidence(
     for event in repository.company_coverage_events(int(company["id"])):
         reason = str(event.get("reason") or "")
         exact_cik_url = "Canonical company URL imported by exact SEC CIK" in reason
-        website_event = (
-            reason.startswith("Canonical website seed verified from ")
-            or reason.startswith("SEC Submissions JSON ")
-            or (exact_cik_url and "P856" in reason)
-        )
-        career_event = (exact_cik_url and "P10311" in reason) or (
-            reason.startswith("Canonical website seed verified from ")
-            and "reviewed career URL " in reason
-        ) or reason.startswith(
-            "Canonical career seed verified by direct public career-page exact company identity at "
+        website_event = reason.startswith(
+            ("Canonical website seed verified from ", "SEC Submissions JSON ")
+        ) or (exact_cik_url and "P856" in reason)
+        career_event = (
+            (exact_cik_url and "P10311" in reason)
+            or (
+                reason.startswith("Canonical website seed verified from ")
+                and "reviewed career URL " in reason
+            )
+            or reason.startswith(
+                "Canonical career seed verified by direct public career-page exact company identity at "
+            )
         )
         if website and website_event:
             website_verified = True

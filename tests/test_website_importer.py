@@ -92,14 +92,16 @@ def test_imports_website_without_a_career_url(tmp_path):
     registry = tmp_path / "websites.csv"
     write_registry(
         registry,
-        [{
-            "company_name": "Example Company",
-            "website_url": "https://www.example.com",
-            "career_url": "",
-            "source_url": "https://www.example.com",
-            "verified_at": "2026-08-06T12:00:00+00:00",
-            "actor": "reviewer@example.org",
-        }],
+        [
+            {
+                "company_name": "Example Company",
+                "website_url": "https://www.example.com",
+                "career_url": "",
+                "source_url": "https://www.example.com",
+                "verified_at": "2026-08-06T12:00:00+00:00",
+                "actor": "reviewer@example.org",
+            }
+        ],
     )
 
     assert import_company_websites(repository, registry) == 1

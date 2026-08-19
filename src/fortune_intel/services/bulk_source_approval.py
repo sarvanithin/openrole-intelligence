@@ -43,13 +43,13 @@ def _pending_candidates(
     parameters: list[object] = list(kinds)
     if candidate_ids is not None:
         id_placeholders = ", ".join("?" for _ in candidate_ids)
-        id_filter = f" AND id IN ({id_placeholders})"  # noqa: S608
+        id_filter = f" AND id IN ({id_placeholders})"
         parameters.extend(sorted(candidate_ids))
     with repository.connect() as connection:
         rows = connection.execute(
             f"""SELECT id, kind FROM career_source_candidates
             WHERE status = 'discovered' AND kind IN ({kind_placeholders}) {id_filter}
-            ORDER BY confidence DESC, id ASC LIMIT ?""",  # noqa: S608
+            ORDER BY confidence DESC, id ASC LIMIT ?""",
             (*parameters, limit),
         ).fetchall()
     return [dict(row) for row in rows]

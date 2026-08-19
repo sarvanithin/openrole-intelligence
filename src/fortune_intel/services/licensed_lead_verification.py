@@ -11,10 +11,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from html.parser import HTMLParser
-from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -86,7 +86,9 @@ def _page_text(body: bytes) -> tuple[str, str]:
 def fetch_lead_page(url: str) -> LeadPage:
     """Fetch one HTTPS page without following a potentially unsafe redirect."""
 
-    request = Request(url, headers={"User-Agent": "OpenRoleIntelligence/1.0 (+https://openrole.example)"})
+    request = Request(
+        url, headers={"User-Agent": "OpenRoleIntelligence/1.0 (+https://openrole.example)"}
+    )
     try:
         with build_opener(_NoRedirect()).open(request, timeout=20) as response:
             return LeadPage(
@@ -213,7 +215,10 @@ def promote_verified_discovery_leads(
                 observed_url=str(row["observed_url"]),
                 evidence=lead,
                 status="rejected",
-                details={"reason": "redirect_or_canonical_url_changed", "final_url": page.final_url},
+                details={
+                    "reason": "redirect_or_canonical_url_changed",
+                    "final_url": page.final_url,
+                },
             )
             report["rejected"] += 1
             continue

@@ -1,6 +1,6 @@
 import asyncio
 
-import fortune_intel.scheduler as scheduler
+from fortune_intel import scheduler
 from fortune_intel.cli import parser
 from fortune_intel.storage import JobRepository
 

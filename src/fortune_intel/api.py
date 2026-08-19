@@ -16,13 +16,12 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from fortune_intel.config import Settings
 from fortune_intel.domain import SPONSORSHIP_RULE_VERSION
 from fortune_intel.security import PublicSecurityMiddleware
+from fortune_intel.services.us_location import LOCATION_RULE_VERSION
 from fortune_intel.storage import JobRepository
 from fortune_intel.storage.coverage_audit_ops import (
     COVERAGE_AUDIT_DEFINITION,
     coverage_audit_summary,
 )
-from fortune_intel.services.us_location import LOCATION_RULE_VERSION
-
 
 COUNTRY_SCOPE = "United States (50 states and Washington, DC)"
 

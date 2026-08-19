@@ -114,7 +114,9 @@ class ICIMSPublicConnector:
             if expected_pages is None:
                 expected_pages = total_pages
             elif total_pages != expected_pages:
-                errors.append(record_error(ValueError("listing page total changed during pagination")))
+                errors.append(
+                    record_error(ValueError("listing page total changed during pagination"))
+                )
                 return self._result(jobs, errors, page_index + 1, False)
             if not summaries:
                 errors.append(record_error(ValueError("listing page contained no job cards")))
@@ -147,7 +149,9 @@ class ICIMSPublicConnector:
                 if seen != set(manifest):
                     errors.append(
                         record_error(
-                            ValueError("paginated job IDs did not match the robots sitemap manifest")
+                            ValueError(
+                                "paginated job IDs did not match the robots sitemap manifest"
+                            )
                         )
                     )
                 return self._result(jobs, errors, page_index + 1, not errors)
@@ -157,7 +161,9 @@ class ICIMSPublicConnector:
     def _result(
         self, jobs: list[ConnectorJob], errors: list[ConnectorError], pages: int, complete: bool
     ) -> ConnectorResult:
-        return ConnectorResult(self.source, self.icims.key, tuple(jobs), complete, tuple(errors), pages)
+        return ConnectorResult(
+            self.source, self.icims.key, tuple(jobs), complete, tuple(errors), pages
+        )
 
     def _listing_url(self, page_index: int) -> str:
         return f"{self.icims.public_base_url}?ss=1&pr={page_index}&in_iframe=1"

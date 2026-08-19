@@ -12,10 +12,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from html.parser import HTMLParser
-from typing import Callable, Iterator
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -66,7 +66,10 @@ class _IdentityParser(HTMLParser):
             value = attributes.get("content", "").strip()
             if key in _SITE_NAME_META and value:
                 self.meta.setdefault(key, []).append(value)
-        if tag.casefold() == "script" and attributes.get("type", "").casefold().split(";", 1)[0] == "application/ld+json":
+        if (
+            tag.casefold() == "script"
+            and attributes.get("type", "").casefold().split(";", 1)[0] == "application/ld+json"
+        ):
             self._json_ld_depth = 1
             self._current_json_ld = []
 
@@ -88,13 +91,17 @@ def _normal_company_name(value: str) -> str:
 
 def _is_third_party_profile_host(url: str) -> bool:
     host = (urlsplit(url).hostname or "").casefold().removeprefix("www.")
-    return any(host == blocked or host.endswith(f".{blocked}") for blocked in _THIRD_PARTY_PROFILE_HOSTS)
+    return any(
+        host == blocked or host.endswith(f".{blocked}") for blocked in _THIRD_PARTY_PROFILE_HOSTS
+    )
 
 
 def fetch_website_page(url: str) -> WebsitePage:
     """Fetch one public HTTPS page without following redirects."""
 
-    request = Request(url, headers={"User-Agent": "OpenRoleIntelligence/1.0 (+https://openrole.example)"})
+    request = Request(
+        url, headers={"User-Agent": "OpenRoleIntelligence/1.0 (+https://openrole.example)"}
+    )
     try:
         with build_opener(_NoRedirect()).open(request, timeout=20) as response:
             return WebsitePage(
@@ -236,7 +243,10 @@ def promote_verified_website_leads(
                 observed_url=observed_url,
                 evidence=lead,
                 status="rejected",
-                details={"reason": "redirect_or_canonical_url_changed", "final_url": page.final_url},
+                details={
+                    "reason": "redirect_or_canonical_url_changed",
+                    "final_url": page.final_url,
+                },
             )
             report["rejected"] += 1
             continue
@@ -248,7 +258,10 @@ def promote_verified_website_leads(
                 observed_url=observed_url,
                 evidence=lead,
                 status="rejected",
-                details={"reason": "first_party_exact_organization_identity_not_present", "status": page.status},
+                details={
+                    "reason": "first_party_exact_organization_identity_not_present",
+                    "status": page.status,
+                },
             )
             report["rejected"] += 1
             continue

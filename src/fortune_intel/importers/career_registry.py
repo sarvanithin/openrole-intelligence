@@ -22,7 +22,6 @@ from fortune_intel.storage import JobRepository
 from fortune_intel.storage.coverage_ops import normalize_public_url
 from fortune_intel.storage.coverage_schema import FINGERPRINT_FAMILIES
 
-
 _POLICY_HELD_KINDS = frozenset({"adp_workforce_now", "icims_public", "ukg_recruiting_public"})
 _FAMILY_FOR_POLICY_KIND = {
     "adp_workforce_now": "adp",
@@ -113,8 +112,12 @@ def _lead(row: dict[str, str | None], row_number: int) -> CareerRegistryLead | N
 
     fingerprint = classify_passive_or_unknown_url(normalized_url, origin_page=None)
     family = fingerprint.family if fingerprint is not None else "unknown_external"
-    evidence = fingerprint.evidence if fingerprint is not None else (
-        "User-supplied public career URL; no supported or bounded passive ATS signature matched",
+    evidence = (
+        fingerprint.evidence
+        if fingerprint is not None
+        else (
+            "User-supplied public career URL; no supported or bounded passive ATS signature matched",
+        )
     )
     return CareerRegistryLead(
         company_id=company_id,
@@ -216,7 +219,9 @@ def import_career_url_registry(
     path = Path(csv_path)
     checksum = hashlib.sha256(path.read_bytes()).hexdigest()
     with path.open(newline="", encoding="utf-8-sig") as handle:
-        parsed = [_lead(row, row_number) for row_number, row in enumerate(csv.DictReader(handle), start=2)]
+        parsed = [
+            _lead(row, row_number) for row_number, row in enumerate(csv.DictReader(handle), start=2)
+        ]
     rows_read = len(parsed)
     leads = [lead for lead in parsed if lead is not None]
     seen: set[tuple[int, str]] = set()

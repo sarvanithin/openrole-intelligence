@@ -18,11 +18,11 @@ _RELATION = (
     r"(?:address\s+)?(?:is|at|is\s+located\s+at|can\s+be\s+found\s+at|"
     r"is\s+available\s+at|:|,)"
 )
-_DECLARATION_RE = re.compile(rf"\b{_OWNER}\s+{_SITE}\s*{_RELATION}\s*{_URL_TOKEN}", re.I)
+_DECLARATION_RE = re.compile(rf"\b{_OWNER}\s+{_SITE}\s*{_RELATION}\s*{_URL_TOKEN}", re.IGNORECASE)
 _MAINTAIN_RE = re.compile(
     rf"\b(?:we|the\s+company)\s+(?:maintain|maintains|has)\s+(?:an?\s+)?"
     rf"{_SITE}\s+at\s+{_URL_TOKEN}",
-    re.I,
+    re.IGNORECASE,
 )
 _BLOCKED_HOST_SUFFIXES = (
     "sec.gov",
@@ -146,6 +146,8 @@ def extract_declared_company_websites(
     _record_matches(text, _DECLARATION_RE, found)
     _record_matches(text, _MAINTAIN_RE, found)
     legal_name = r"\s+".join(re.escape(part) for part in company_name.strip().split())
-    named = re.compile(rf"\b{legal_name}(?:'s|’s)?\s+{_SITE}\s*{_RELATION}\s*{_URL_TOKEN}", re.I)
+    named = re.compile(
+        rf"\b{legal_name}(?:'s|’s)?\s+{_SITE}\s*{_RELATION}\s*{_URL_TOKEN}", re.IGNORECASE
+    )
     _record_matches(text, named, found)
     return tuple(sorted(found.values(), key=lambda item: item.website_url))

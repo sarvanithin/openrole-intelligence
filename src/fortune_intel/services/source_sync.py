@@ -13,7 +13,6 @@ from fortune_intel.services.sponsorship import assess_sponsorship
 from fortune_intel.storage import JobRepository
 from fortune_intel.storage.job_geography import assess_job_geography
 
-
 MAX_SOURCE_SYNC_CONCURRENCY = 16
 
 
