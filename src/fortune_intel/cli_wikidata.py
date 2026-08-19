@@ -35,7 +35,7 @@ def add_wikidata_website_parser(commands: _SubParsersAction) -> None:
 
 
 def run_wikidata_website_command(args: object, repository: JobRepository) -> dict[str, object]:
-    user_agent = str(getattr(args, "user_agent"))
+    user_agent = str(args.user_agent)
     if not user_agent.strip():
         raise SystemExit(
             "--user-agent or WIKIMEDIA_USER_AGENT is required by Wikimedia's bot policy"
@@ -43,15 +43,15 @@ def run_wikidata_website_command(args: object, repository: JobRepository) -> dic
     try:
         client = WikidataWebsiteClient(
             user_agent=user_agent,
-            batch_size=int(getattr(args, "batch_size")),
+            batch_size=int(args.batch_size),
         )
         return import_wikidata_company_websites(
             repository,
             client,
-            actor=str(getattr(args, "actor")),
-            limit=getattr(args, "limit"),
-            dry_run=bool(getattr(args, "dry_run")),
-            after_company_id=int(getattr(args, "after_company_id")),
+            actor=str(args.actor),
+            limit=args.limit,
+            dry_run=bool(args.dry_run),
+            after_company_id=int(args.after_company_id),
             missing_websites_only=True,
         )
     except ValueError as error:

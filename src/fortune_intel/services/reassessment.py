@@ -51,6 +51,7 @@ def reassess_all_jobs(repository: JobRepository) -> dict[str, object]:
 
         histories: dict[int, EmployerHistory] = {}
         for company_id, rows in facts.items():
+
             def weight(year: int) -> float:
                 return max(0.2, 1 - (0.2 * max(0, current_year - int(year))))
 
@@ -65,9 +66,7 @@ def reassess_all_jobs(repository: JobRepository) -> dict[str, object]:
                     sum(row["lca_worker_positions"] * weight(row["fiscal_year"]) for row in rows)
                 ),
                 latest_fiscal_year=max(int(row["fiscal_year"]) for row in rows),
-                entity_match_confidence=min(
-                    float(row["entity_match_confidence"]) for row in rows
-                ),
+                entity_match_confidence=min(float(row["entity_match_confidence"]) for row in rows),
                 recency_weighted=True,
             )
 

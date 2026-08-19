@@ -142,15 +142,17 @@ def test_bulk_source_import_accepts_exact_official_structured_manifest(tmp_path)
     manifest = "https://careers.example.com/job-sitemap.xml"
     write_registry(
         registry,
-        [{
-            "company_name": "Example Company",
-            "kind": "official_structured",
-            "board_token": manifest,
-            "base_url": manifest,
-            "terms_url": "https://example.com/terms",
-            "policy_approved_at": "2026-08-13T12:00:00Z",
-            "owner_contact": "owner@example.org",
-        }],
+        [
+            {
+                "company_name": "Example Company",
+                "kind": "official_structured",
+                "board_token": manifest,
+                "base_url": manifest,
+                "terms_url": "https://example.com/terms",
+                "policy_approved_at": "2026-08-13T12:00:00Z",
+                "owner_contact": "owner@example.org",
+            }
+        ],
     )
 
     assert import_source_registry(repository, registry) == 1
@@ -259,9 +261,7 @@ def test_bulk_source_import_accepts_exact_reviewed_ukg_board(tmp_path):
             {
                 "company_name": "Example Company",
                 "kind": "ukg_recruiting_public",
-                "board_token": (
-                    f"recruiting2.ultipro.com|ARC1026ARCOI|{board_id}"
-                ),
+                "board_token": (f"recruiting2.ultipro.com|ARC1026ARCOI|{board_id}"),
                 "base_url": base_url,
                 "terms_url": "https://example.org/written-authorization",
                 "policy_approved_at": "2026-08-12T12:00:00Z",
@@ -281,29 +281,35 @@ def test_bulk_source_import_accepts_exact_reviewed_ukg_board(tmp_path):
     [
         (
             "recruiting2.ultipro.com|OTHER|2af23579-6cf8-4926-be1a-3bc74872c197",
-            "https://recruiting2.ultipro.com/ARC1026ARCOI/JobBoard/"
-            "2af23579-6cf8-4926-be1a-3bc74872c197",
+            (
+                "https://recruiting2.ultipro.com/ARC1026ARCOI/JobBoard/"
+                "2af23579-6cf8-4926-be1a-3bc74872c197"
+            ),
         ),
         (
             "recruiting2.ultipro.com|ARC1026ARCOI|2af23579-6cf8-4926-be1a-3bc74872c197",
-            "https://recruiting.ultipro.com/ARC1026ARCOI/JobBoard/"
-            "2af23579-6cf8-4926-be1a-3bc74872c197",
+            (
+                "https://recruiting.ultipro.com/ARC1026ARCOI/JobBoard/"
+                "2af23579-6cf8-4926-be1a-3bc74872c197"
+            ),
         ),
         (
             "recruiting2.ultipro.com|ARC1026ARCOI|2af23579-6cf8-4926-be1a-3bc74872c197",
-            "https://recruiting2.ultipro.com/ARC1026ARCOI/JobBoard/"
-            "2af23579-6cf8-4926-be1a-3bc74872c197?source=review",
+            (
+                "https://recruiting2.ultipro.com/ARC1026ARCOI/JobBoard/"
+                "2af23579-6cf8-4926-be1a-3bc74872c197?source=review"
+            ),
         ),
         (
             "recruiting2.ultipro.com|ARC1026ARCOI|2af23579-6cf8-4926-be1a-3bc74872c197",
-            "https://recruiting2.ultipro.com:443/ARC1026ARCOI/JobBoard/"
-            "2af23579-6cf8-4926-be1a-3bc74872c197",
+            (
+                "https://recruiting2.ultipro.com:443/ARC1026ARCOI/JobBoard/"
+                "2af23579-6cf8-4926-be1a-3bc74872c197"
+            ),
         ),
     ],
 )
-def test_bulk_source_import_rejects_ukg_board_identity_mismatch(
-    tmp_path, board_token, base_url
-):
+def test_bulk_source_import_rejects_ukg_board_identity_mismatch(tmp_path, board_token, base_url):
     repository = JobRepository(tmp_path / "ukg-mismatch.db")
     repository.initialize()
     repository.upsert_company("Example Company")
@@ -325,8 +331,6 @@ def test_bulk_source_import_rejects_ukg_board_identity_mismatch(
 
     with pytest.raises(ValueError, match="approved ukg_recruiting_public public host"):
         import_source_registry(repository, registry)
-
-
 
 
 def test_bulk_source_import_accepts_exact_reviewed_oracle_host_locale_and_site(tmp_path):

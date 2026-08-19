@@ -16,7 +16,6 @@ from fortune_intel.connectors.common import (
 from fortune_intel.connectors.http import HttpFailure, JsonHttpClient
 from fortune_intel.connectors.models import ConnectorJob, ConnectorResult
 
-
 _SEARCH_URL = "https://www.amazon.jobs/en/search.json"
 _PUBLIC_ROOT = "https://www.amazon.jobs"
 
@@ -67,7 +66,9 @@ class AmazonJobsConnector:
                 )
             except HttpFailure as error:
                 errors.append(http_error(error, page=page_number))
-                return ConnectorResult(self.source, self.board, tuple(jobs), False, tuple(errors), pages)
+                return ConnectorResult(
+                    self.source, self.board, tuple(jobs), False, tuple(errors), pages
+                )
             pages += 1
             try:
                 page_jobs, hits = self._page(payload)
@@ -83,7 +84,9 @@ class AmazonJobsConnector:
                     raise ValueError("search page exceeds the declared remaining hit count")
             except (TypeError, ValueError) as error:
                 errors.append(record_error(error, page=page_number))
-                return ConnectorResult(self.source, self.board, tuple(jobs), False, tuple(errors), pages)
+                return ConnectorResult(
+                    self.source, self.board, tuple(jobs), False, tuple(errors), pages
+                )
 
             for item in page_jobs:
                 external_id = clean_text(item.get("id_icims")) if isinstance(item, dict) else None

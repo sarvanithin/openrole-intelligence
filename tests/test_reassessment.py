@@ -1,5 +1,4 @@
-from fortune_intel.domain import JobRecord
-from fortune_intel.domain import SPONSORSHIP_RULE_VERSION
+from fortune_intel.domain import SPONSORSHIP_RULE_VERSION, JobRecord
 from fortune_intel.services.reassessment import reassess_all_jobs, reassess_company_jobs
 from fortune_intel.services.sponsorship import assess_sponsorship
 from fortune_intel.storage import JobRepository

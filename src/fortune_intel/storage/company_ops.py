@@ -33,31 +33,41 @@ class CompanyOperationsMixin:
             conflicts = (
                 (
                     "jobs",
-                    "source.company_id = ? AND target.company_id = ? "
-                    "AND source.source = target.source "
-                    "AND source.external_job_id = target.external_job_id",
+                    (
+                        "source.company_id = ? AND target.company_id = ? "
+                        "AND source.source = target.source "
+                        "AND source.external_job_id = target.external_job_id"
+                    ),
                 ),
                 (
                     "career_sources",
-                    "source.company_id = ? AND target.company_id = ? "
-                    "AND source.base_url = target.base_url",
+                    (
+                        "source.company_id = ? AND target.company_id = ? "
+                        "AND source.base_url = target.base_url"
+                    ),
                 ),
                 (
                     "sponsorship_facts",
-                    "source.company_id = ? AND target.company_id = ? "
-                    "AND source.source = target.source "
-                    "AND source.fiscal_year = target.fiscal_year",
+                    (
+                        "source.company_id = ? AND target.company_id = ? "
+                        "AND source.source = target.source "
+                        "AND source.fiscal_year = target.fiscal_year"
+                    ),
                 ),
                 (
                     "career_source_candidates",
-                    "source.company_id = ? AND target.company_id = ? "
-                    "AND source.candidate_url = target.candidate_url",
+                    (
+                        "source.company_id = ? AND target.company_id = ? "
+                        "AND source.candidate_url = target.candidate_url"
+                    ),
                 ),
                 (
                     "career_source_fingerprints",
-                    "source.company_id = ? AND target.company_id = ? "
-                    "AND source.family = target.family "
-                    "AND source.observed_url = target.observed_url",
+                    (
+                        "source.company_id = ? AND target.company_id = ? "
+                        "AND source.family = target.family "
+                        "AND source.observed_url = target.observed_url"
+                    ),
                 ),
             )
             for table, predicate in conflicts:

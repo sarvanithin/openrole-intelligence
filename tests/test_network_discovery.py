@@ -4,7 +4,6 @@ import pytest
 
 from fortune_intel.discovery import CareerSourceDiscovery, FetchFailure, FetchResponse
 
-
 PUBLIC_IP = "93.184.216.34"
 
 
@@ -287,9 +286,7 @@ def test_follows_same_company_career_widget_data_url_when_path_is_generic():
         {
             "https://company.example/robots.txt": [response(404)],
             "https://company.example/": [response(200, home, **{"Content-Type": "text/html"})],
-            "https://company.example/work": [
-                response(200, work, **{"Content-Type": "text/html"})
-            ],
+            "https://company.example/work": [response(200, work, **{"Content-Type": "text/html"})],
         }
     )
 

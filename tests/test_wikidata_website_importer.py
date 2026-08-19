@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from fortune_intel.cli import parser
 from fortune_intel.importers.wikidata_websites import (
     WikidataWebsiteClient,
     import_wikidata_company_websites,
 )
-from fortune_intel.cli import parser
 from fortune_intel.storage import JobRepository
 
 

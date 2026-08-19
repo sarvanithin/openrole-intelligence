@@ -1,5 +1,6 @@
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
 
 from fortune_intel.connectors.models import ConnectorJob, ConnectorResult
 from fortune_intel.services import source_approval
@@ -29,8 +30,7 @@ def candidate(repository):
 
 
 UKG_BOARD = (
-    "https://recruiting2.ultipro.com/ARC1026ARCOI/JobBoard/"
-    "2af23579-6cf8-4926-be1a-3bc74872c197"
+    "https://recruiting2.ultipro.com/ARC1026ARCOI/JobBoard/2af23579-6cf8-4926-be1a-3bc74872c197"
 )
 
 
@@ -63,9 +63,7 @@ def test_ukg_approval_requires_primary_company_provenance(monkeypatch, tmp_path)
     assert repository.source_status() == []
 
 
-def test_official_structured_approval_requires_primary_provenance_and_robots(
-    monkeypatch, tmp_path
-):
+def test_official_structured_approval_requires_primary_provenance_and_robots(monkeypatch, tmp_path):
     repository = JobRepository(tmp_path / "structured-policy.db")
     repository.initialize()
     company_id = repository.upsert_company("Example")
@@ -129,17 +127,14 @@ def test_ukg_approval_accepts_explicit_primary_source_review(monkeypatch, tmp_pa
                 "ukg_recruiting_public",
                 "78ec5a6e-56b4-44a2-9dba-b3563ee71b89",
                 "Engineer",
-                f"{UKG_BOARD}/OpportunityDetail?opportunityId="
-                "78ec5a6e-56b4-44a2-9dba-b3563ee71b89",
+                f"{UKG_BOARD}/OpportunityDetail?opportunityId=78ec5a6e-56b4-44a2-9dba-b3563ee71b89",
                 location="Austin, TX, USA",
                 source_opened_at="2026-08-12T12:00:00+00:00",
             ),
         ),
         complete=True,
     )
-    monkeypatch.setattr(
-        source_approval, "build_connector", lambda *_: StubConnector(result)
-    )
+    monkeypatch.setattr(source_approval, "build_connector", lambda *_: StubConnector(result))
 
     source_id = source_approval.approve_source_candidate(
         repository,
@@ -394,10 +389,7 @@ def test_recruiting_path_workday_approval_preserves_exact_host_tenant_and_site(
     company_id = repository.upsert_company("Example")
     candidate_id = repository.upsert_source_candidate(
         company_id,
-        candidate_url=(
-            "https://wd1.myworkdaysite.com/recruiting/snapchat/snap/"
-            "job/US-CA/Role_R1"
-        ),
+        candidate_url=("https://wd1.myworkdaysite.com/recruiting/snapchat/snap/job/US-CA/Role_R1"),
         kind="workday",
         confidence=0.99,
         evidence={"origin": "verified company careers link"},
@@ -428,9 +420,7 @@ def test_recruiting_path_workday_approval_preserves_exact_host_tenant_and_site(
 
     assert calls == [("workday", "wd1.myworkdaysite.com|snapchat|snap")]
     source = repository.source_status()[0]
-    assert source["base_url"] == (
-        "https://wd1.myworkdaysite.com/recruiting/snapchat/snap"
-    )
+    assert source["base_url"] == ("https://wd1.myworkdaysite.com/recruiting/snapchat/snap")
 
 
 def test_initial_manifest_failure_rolls_back_source_jobs_policy_and_success_state(

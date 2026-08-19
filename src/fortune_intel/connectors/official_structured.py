@@ -17,7 +17,9 @@ import requests
 from fortune_intel.connectors.common import clean_html, clean_text, normalize_timestamp
 from fortune_intel.connectors.models import ConnectorError, ConnectorJob, ConnectorResult
 
-_XML_TYPES = frozenset({"application/xml", "text/xml", "application/rss+xml", "application/atom+xml"})
+_XML_TYPES = frozenset(
+    {"application/xml", "text/xml", "application/rss+xml", "application/atom+xml"}
+)
 _MAX_URL = 4096
 
 
@@ -93,16 +95,23 @@ class OfficialStructuredHttpClient:
         normalized = _public_https_url(url)
         if urlsplit(normalized).hostname != self.host:
             raise ValueError("structured source traversal left its exact official host")
-        addresses = {item[4][0] for item in socket.getaddrinfo(self.host, 443, type=socket.SOCK_STREAM)}
+        addresses = {
+            item[4][0] for item in socket.getaddrinfo(self.host, 443, type=socket.SOCK_STREAM)
+        }
         if not addresses or any(not ipaddress.ip_address(item).is_global for item in addresses):
-            raise ValueError("structured source host did not resolve exclusively to public addresses")
+            raise ValueError(
+                "structured source host did not resolve exclusively to public addresses"
+            )
         return normalized
 
     def get_text(self, url: str, *, max_bytes: int) -> TextResponse:
         target = self._validate_target(url)
         response = self.session.get(
             target,
-            headers={"Accept": "text/html,application/xml,text/xml", "User-Agent": "OpenRole-Structured/0.1"},
+            headers={
+                "Accept": "text/html,application/xml,text/xml",
+                "User-Agent": "OpenRole-Structured/0.1",
+            },
             timeout=(5.0, 30.0),
             allow_redirects=False,
             stream=True,
@@ -181,7 +190,11 @@ class OfficialStructuredConnector:
         except ValueError as error:
             return self._result((), False, (self._error(error),), 0)
         if feed:
-            errors.append(self._error(ValueError("syndication feeds cannot prove a complete active-job manifest")))
+            errors.append(
+                self._error(
+                    ValueError("syndication feeds cannot prove a complete active-job manifest")
+                )
+            )
         jobs: list[ConnectorJob] = []
         seen_ids: set[str] = set()
         for url in urls:
@@ -360,13 +373,21 @@ class OfficialStructuredConnector:
             if not isinstance(entry, dict):
                 continue
             address = entry.get("address") if isinstance(entry.get("address"), dict) else entry
-            parts = [address.get(key) for key in ("addressLocality", "addressRegion", "addressCountry")]
+            parts = [
+                address.get(key) for key in ("addressLocality", "addressRegion", "addressCountry")
+            ]
             location = ", ".join(clean_text(part) for part in parts if clean_text(part))
             if location and location not in result:
                 result.append(location)
         return result
 
-    def _result(self, jobs: tuple[ConnectorJob, ...], complete: bool, errors: tuple[ConnectorError, ...], pages: int) -> ConnectorResult:
+    def _result(
+        self,
+        jobs: tuple[ConnectorJob, ...],
+        complete: bool,
+        errors: tuple[ConnectorError, ...],
+        pages: int,
+    ) -> ConnectorResult:
         return ConnectorResult(self.source, self.structured.key, jobs, complete, errors, pages)
 
     @staticmethod

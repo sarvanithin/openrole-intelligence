@@ -13,19 +13,18 @@ from fortune_intel.services.acquisition_planning import (
     ACQUISITION_STAGES,
     create_acquisition_plan,
 )
-from fortune_intel.services.acquisition_worker import run_acquisition_worker
 from fortune_intel.services.acquisition_recovery import create_acquisition_recovery_plan
 from fortune_intel.services.acquisition_scheduler import (
     DEFAULT_CADENCE_SECONDS,
     acquisition_scheduler_lock,
     verified_discovery_scheduler_loop,
 )
+from fortune_intel.services.acquisition_worker import run_acquisition_worker
 from fortune_intel.services.continuous_acquisition import (
     acquisition_operational_metrics,
     continuous_acquisition_scheduler_loop,
 )
 from fortune_intel.storage import JobRepository
-
 
 ACQUISITION_COMMANDS = frozenset(
     {

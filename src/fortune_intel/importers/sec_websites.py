@@ -7,11 +7,11 @@ guessing in this importer.
 
 from __future__ import annotations
 
-import time
 import threading
-from concurrent.futures import ThreadPoolExecutor
+import time
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime

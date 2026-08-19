@@ -16,7 +16,6 @@ from fortune_intel.connectors.common import (
 from fortune_intel.connectors.http import HttpFailure, JsonHttpClient
 from fortune_intel.connectors.models import ConnectorJob, ConnectorResult
 
-
 _SEARCH_URL = "https://jobs.apple.com/en-us/search"
 _HYDRATION = re.compile(
     r'window\.__staticRouterHydrationData\s*=\s*JSON\.parse\(("(?:\\.|[^"\\])*")\)',
@@ -77,10 +76,14 @@ class AppleJobsConnector:
                     raise ValueError("search returned more than the public page size")
             except HttpFailure as error:
                 errors.append(http_error(error, page=page))
-                return ConnectorResult(self.source, self.board, tuple(jobs), False, tuple(errors), page - 1)
+                return ConnectorResult(
+                    self.source, self.board, tuple(jobs), False, tuple(errors), page - 1
+                )
             except (json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
                 errors.append(record_error(error))
-                return ConnectorResult(self.source, self.board, tuple(jobs), False, tuple(errors), page)
+                return ConnectorResult(
+                    self.source, self.board, tuple(jobs), False, tuple(errors), page
+                )
 
             for item in page_jobs:
                 external_id = clean_text(item.get("positionId")) if isinstance(item, dict) else None
@@ -95,11 +98,17 @@ class AppleJobsConnector:
             records_seen += len(page_jobs)
             if expected_pages == page:
                 if records_seen != expected_total:
-                    errors.append(record_error(ValueError("paginated job count did not match declared total")))
-                return ConnectorResult(self.source, self.board, tuple(jobs), not errors, tuple(errors), page)
+                    errors.append(
+                        record_error(ValueError("paginated job count did not match declared total"))
+                    )
+                return ConnectorResult(
+                    self.source, self.board, tuple(jobs), not errors, tuple(errors), page
+                )
 
         errors.append(record_error(ValueError(f"pagination exceeded {self.max_pages} pages")))
-        return ConnectorResult(self.source, self.board, tuple(jobs), False, tuple(errors), self.max_pages)
+        return ConnectorResult(
+            self.source, self.board, tuple(jobs), False, tuple(errors), self.max_pages
+        )
 
     def _page_payload(self, page: int) -> object:
         params = {"location": _USA_LOCATION}
@@ -138,7 +147,11 @@ class AppleJobsConnector:
         position_id = require_text(item, "positionId")
         title = require_text(item, "postingTitle")
         locations = item.get("locations")
-        if not isinstance(locations, list) or not locations or not all(isinstance(value, dict) for value in locations):
+        if (
+            not isinstance(locations, list)
+            or not locations
+            or not all(isinstance(value, dict) for value in locations)
+        ):
             raise ValueError("Apple job must contain one or more locations")
         rendered_locations = []
         is_us = False
@@ -148,18 +161,24 @@ class AppleJobsConnector:
             if country_id == "iso-country-usa" or country.casefold().startswith("united states"):
                 is_us = True
             rendered = ", ".join(
-                part for part in (clean_text(location.get("city")), clean_text(location.get("stateProvince")), country) if part
+                part
+                for part in (
+                    clean_text(location.get("city")),
+                    clean_text(location.get("stateProvince")),
+                    country,
+                )
+                if part
             )
-            if rendered and rendered.casefold() not in {value.casefold() for value in rendered_locations}:
+            if rendered and rendered.casefold() not in {
+                value.casefold() for value in rendered_locations
+            }:
                 rendered_locations.append(rendered)
         if not is_us:
             raise ValueError("U.S.-filtered Apple search returned a non-U.S. job")
         # Retail roles can be emitted once per store while sharing a requisition
         # ID.  The public location ID makes each rendered card stable and avoids
         # silently discarding legitimate location-specific openings.
-        location_ids = sorted(
-            require_text(location, "postLocationId") for location in locations
-        )
+        location_ids = sorted(require_text(location, "postLocationId") for location in locations)
         identifier = f"{position_id}:{'|'.join(location_ids)}"
         opened_at = normalize_timestamp(item.get("postDateInGMT"))
         if opened_at is None:

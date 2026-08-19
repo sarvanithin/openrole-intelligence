@@ -22,13 +22,9 @@ from fortune_intel.connectors.http import HttpFailure, JsonHttpClient
 from fortune_intel.connectors.models import ConnectorError, ConnectorJob, ConnectorResult
 from fortune_intel.connectors.ukg import classify_ukg_board_url
 
-_HOSTS = frozenset(
-    {"recruiting.ultipro.com", "recruiting2.ultipro.com", "recruiting.ultipro.ca"}
-)
+_HOSTS = frozenset({"recruiting.ultipro.com", "recruiting2.ultipro.com", "recruiting.ultipro.ca"})
 _TENANT = re.compile(r"^[A-Za-z0-9]{2,64}$")
-_UUID = re.compile(
-    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-)
+_UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 _SOURCE_SEPARATOR = "|"
 _DETAIL_PREFIX = "var opportunity = new US.Opportunity.CandidateOpportunityDetail("
 
@@ -241,9 +237,7 @@ class UKGRecruitingPublicConnector:
         if not isinstance(payload, dict):
             raise TypeError("job-list payload must be an object")
         summaries = payload.get("opportunities")
-        if not isinstance(summaries, list) or not all(
-            isinstance(item, dict) for item in summaries
-        ):
+        if not isinstance(summaries, list) or not all(isinstance(item, dict) for item in summaries):
             raise TypeError("job-list payload must contain an opportunities object list")
         total = UKGRecruitingPublicConnector._nonnegative_integer(
             payload.get("totalCount"), "job total"
@@ -253,7 +247,7 @@ class UKGRecruitingPublicConnector:
     @staticmethod
     def _nonnegative_integer(value: object, label: str) -> int:
         if isinstance(value, bool):
-            raise ValueError(f"{label} must be a non-negative integer")
+            raise TypeError(f"{label} must be a non-negative integer")
         try:
             result = int(str(value))
         except (TypeError, ValueError) as error:

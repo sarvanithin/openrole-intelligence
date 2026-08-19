@@ -7,21 +7,21 @@ probe the connector and review source policy before enabling recurring sync.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from html.parser import HTMLParser
 import json
 import re
-from typing import Iterable
+from collections.abc import Iterable
+from dataclasses import dataclass
+from html.parser import HTMLParser
 from urllib.parse import parse_qs, unquote, urljoin, urlsplit
 
 from fortune_intel.connectors.adp_workforce_now import adp_workforce_now_source_from_url
 from fortune_intel.connectors.icims_public import icims_public_source_from_url
-from fortune_intel.connectors.workday import workday_source
-from fortune_intel.connectors.oracle_recruiting import oracle_recruiting_source
 from fortune_intel.connectors.official_structured import official_structured_source
+from fortune_intel.connectors.oracle_recruiting import oracle_recruiting_source
 from fortune_intel.connectors.ukg_recruiting_public import (
     ukg_recruiting_public_source_from_url,
 )
+from fortune_intel.connectors.workday import workday_source
 
 _TOKEN_LIMIT = 128
 # Career widgets often keep their exact outbound ATS URL in an accessible data

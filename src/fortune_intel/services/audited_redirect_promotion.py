@@ -28,9 +28,7 @@ from fortune_intel.services.licensed_lead_verification import (
 )
 from fortune_intel.storage import JobRepository
 
-_AUDIT_TARGET_TYPES = frozenset(
-    {"enabled_source", "registry_supported_ats", "registry_portal"}
-)
+_AUDIT_TARGET_TYPES = frozenset({"enabled_source", "registry_supported_ats", "registry_portal"})
 
 
 def _public_https_url(

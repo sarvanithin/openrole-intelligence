@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from argparse import _SubParsersAction
 
-from fortune_intel.services.reassessment import reassess_company_jobs
 from fortune_intel.services.h1b_exact_linking import bulk_link_exact_h1b_employers
+from fortune_intel.services.reassessment import reassess_company_jobs
 from fortune_intel.storage import JobRepository
 
 H1B_LINK_COMMANDS = frozenset({"link-h1b-employer", "bulk-link-exact-h1b"})
@@ -27,16 +27,16 @@ def add_h1b_link_parsers(commands: _SubParsersAction) -> None:
 
 
 def run_h1b_link_command(args: object, repository: JobRepository) -> dict[str, object]:
-    command = str(getattr(args, "command"))
+    command = str(args.command)
     if command == "link-h1b-employer":
-        company = repository.find_company_by_normalized_name(str(getattr(args, "company")))
+        company = repository.find_company_by_normalized_name(str(args.company))
         if company is None:
             raise SystemExit("company not found or normalized name is ambiguous")
         company_id = int(company["id"])
         repository.link_reviewed_h1b_employer(
             company_id,
-            employer_name=str(getattr(args, "employer")),
-            fiscal_year=int(getattr(args, "fiscal_year")),
+            employer_name=str(args.employer),
+            fiscal_year=int(args.fiscal_year),
         )
         return {
             "company_id": company_id,
@@ -46,8 +46,8 @@ def run_h1b_link_command(args: object, repository: JobRepository) -> dict[str, o
     try:
         return bulk_link_exact_h1b_employers(
             repository,
-            dry_run=bool(getattr(args, "dry_run")),
-            report_limit=int(getattr(args, "report_limit")),
+            dry_run=bool(args.dry_run),
+            report_limit=int(args.report_limit),
         )
     except ValueError as error:
         raise SystemExit(str(error)) from error

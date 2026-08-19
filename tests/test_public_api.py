@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 
 from fortune_intel.api import create_app
 from fortune_intel.config import Settings
-from fortune_intel.domain import JobRecord, SPONSORSHIP_RULE_VERSION, SponsorshipTier
+from fortune_intel.domain import SPONSORSHIP_RULE_VERSION, JobRecord, SponsorshipTier
 from fortune_intel.seed import seed_demo
 from fortune_intel.services.sponsorship import assess_sponsorship
 
@@ -171,8 +171,8 @@ def test_dashboard_hidden_empty_state_cannot_display_with_results(tmp_path):
     assert "[hidden] { display: none !important; }" in stylesheet
     assert "empty.hidden = true;" in script
     assert "empty.hidden = data.items.length !== 0;" in script
-    assert '/assets/styles.css?v=7' in dashboard
-    assert '/assets/app.js?v=7' in dashboard
+    assert "/assets/styles.css?v=7" in dashboard
+    assert "/assets/app.js?v=7" in dashboard
 
 
 def test_source_status_does_not_leak_internal_urls_or_errors(tmp_path):

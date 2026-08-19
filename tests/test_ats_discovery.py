@@ -103,8 +103,10 @@ from fortune_intel.discovery import classify_ats_url, discover_ats_sources
             "https://wd1.myworkdaysite.com/recruiting/snapchat/snap",
         ),
         (
-            "https://wd5.myworkdaysite.com/recruiting/chewy/External/"
-            "job/United-States/Senior-Engineer_R123",
+            (
+                "https://wd5.myworkdaysite.com/recruiting/chewy/External/"
+                "job/United-States/Senior-Engineer_R123"
+            ),
             "workday",
             "wd5.myworkdaysite.com|chewy|External",
             "https://wd5.myworkdaysite.com/recruiting/chewy/External",
@@ -116,8 +118,10 @@ from fortune_intel.discovery import classify_ats_url, discover_ats_sources
             "https://wd5.myworkdaysite.com/recruiting/chewy/External",
         ),
         (
-            "https://edxn.fa.us2.oraclecloud.com/hcmUI/"
-            "CandidateExperience/en/sites/CX_4001/job/26069",
+            (
+                "https://edxn.fa.us2.oraclecloud.com/hcmUI/"
+                "CandidateExperience/en/sites/CX_4001/job/26069"
+            ),
             "oracle_recruiting",
             "edxn.fa.us2.oraclecloud.com|en|CX_4001",
             "https://edxn.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_4001",
@@ -257,8 +261,10 @@ def test_reserved_web_routes_are_not_promoted_to_board_tokens(url):
         "https://wd1.myworkdaysite.com/recruiting/snapchat/%2Fsneaky/job/Role_R1",
         "https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap/jobs/private",
         "https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap/job",
-        "https://tenant.fa.oraclecloud.com.evil.example/hcmUI/"
-        "CandidateExperience/en/sites/CX_1/jobs",
+        (
+            "https://tenant.fa.oraclecloud.com.evil.example/hcmUI/"
+            "CandidateExperience/en/sites/CX_1/jobs"
+        ),
         "https://user@tenant.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/jobs",
         "https://tenant.fa.oraclecloud.com/hcmUI/CandidateExperience/../sites/CX_1/jobs",
         "https://tenant.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/%2FCX_1/jobs",
@@ -294,8 +300,7 @@ def test_extracts_workday_career_link_from_company_html():
 def test_extracts_recruiting_path_workday_link_from_company_html():
     results = discover_ats_sources(
         html=(
-            '<a href="https://wd5.myworkdaysite.com/recruiting/chewy/External">'
-            "Search openings</a>"
+            '<a href="https://wd5.myworkdaysite.com/recruiting/chewy/External">Search openings</a>'
         ),
         page_url="https://www.chewy.example/careers",
     )

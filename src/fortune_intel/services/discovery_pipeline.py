@@ -15,7 +15,6 @@ from fortune_intel.discovery import (
 )
 from fortune_intel.storage import JobRepository
 
-
 _BLOCKED_DISPOSITIONS = frozenset(
     {"robots_denied", "unsafe_redirect", "fetch_failed", "rejected_start_url"}
 )
@@ -61,7 +60,7 @@ def _discover_seed(
         )
     try:
         return factory().discover(start_url)
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001 - discovery failures must fail closed per company.
         # One malformed or unexpectedly failing site must not abort a batch of
         # otherwise independent companies. Do not persist the exception text;
         # third-party clients may include credentials or response bodies in it.

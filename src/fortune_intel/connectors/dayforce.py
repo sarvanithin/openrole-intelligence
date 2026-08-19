@@ -162,7 +162,7 @@ def classify_dayforce_board_url(url: str) -> DayforcePolicyHeldCandidate | None:
         or "//" in parsed.path
     ):
         return None
-    path_without_trailing_slash = parsed.path[:-1] if parsed.path.endswith("/") else parsed.path
+    path_without_trailing_slash = parsed.path.removesuffix("/")
     segments = tuple(path_without_trailing_slash.removeprefix("/").split("/"))
     if host == _JOBS_HOST:
         if parsed.path.endswith("/"):

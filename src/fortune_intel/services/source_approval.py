@@ -7,11 +7,11 @@ from datetime import datetime
 from fortune_intel.connectors import build_connector
 from fortune_intel.discovery import classify_ats_url, classify_official_structured_url
 from fortune_intel.domain import JobRecord
-from fortune_intel.services.sponsorship import assess_sponsorship
 from fortune_intel.services.source_provenance import (
     candidate_has_primary_provenance,
     verified_company_seed_evidence,
 )
+from fortune_intel.services.sponsorship import assess_sponsorship
 from fortune_intel.storage import JobRepository
 from fortune_intel.storage.coverage_ops import normalize_public_url
 

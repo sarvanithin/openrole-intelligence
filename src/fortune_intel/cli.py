@@ -10,12 +10,6 @@ import os
 from dataclasses import asdict
 from pathlib import Path
 
-from fortune_intel.config import Settings
-from fortune_intel.cli_output import write_coverage_audit
-from fortune_intel.cli_sec_filings import (
-    add_sec_filing_website_parser,
-    run_sec_filing_website_command,
-)
 from fortune_intel import (
     cli_acquisition,
     cli_fingerprints,
@@ -23,33 +17,39 @@ from fortune_intel import (
     cli_search_harvest,
     cli_wikidata,
 )
-from fortune_intel.importers.companies import import_companies
+from fortune_intel.cli_output import write_coverage_audit
+from fortune_intel.cli_sec_filings import (
+    add_sec_filing_website_parser,
+    run_sec_filing_website_command,
+)
+from fortune_intel.config import Settings
 from fortune_intel.importers.career_registry import import_career_url_registry
+from fortune_intel.importers.companies import import_companies
 from fortune_intel.importers.discovery_leads import import_discovery_leads
-from fortune_intel.importers.website_leads import import_website_leads
 from fortune_intel.importers.dol_h1b import import_dol_lca
+from fortune_intel.importers.jobseek_board_registry import import_jobseek_board_registry
 from fortune_intel.importers.sec_companies import import_sec_companies
 from fortune_intel.importers.sec_websites import (
     SecSubmissionsWebsiteClient,
     import_sec_company_websites,
 )
-from fortune_intel.importers.sources import import_source_registry
 from fortune_intel.importers.source_candidates import import_reviewed_source_candidates
-from fortune_intel.importers.jobseek_board_registry import import_jobseek_board_registry
+from fortune_intel.importers.sources import import_source_registry
+from fortune_intel.importers.website_leads import import_website_leads
 from fortune_intel.importers.websites import import_company_websites
 from fortune_intel.observability import configure_logging
 from fortune_intel.scheduler import scheduler_lock, scheduler_loop
 from fortune_intel.seed import seed_demo
+from fortune_intel.services.bulk_source_approval import approve_discovered_sources
+from fortune_intel.services.discovery_pipeline import discover_company_sources
 from fortune_intel.services.discovery_priority import build_discovery_priority_report
 from fortune_intel.services.ingestion import CompanySource, sync_companies
-from fortune_intel.services.discovery_pipeline import discover_company_sources
-from fortune_intel.services.source_sync import sync_due_sources
-from fortune_intel.services.source_approval import approve_source_candidate
-from fortune_intel.services.bulk_source_approval import approve_discovered_sources
 from fortune_intel.services.licensed_lead_verification import promote_verified_discovery_leads
 from fortune_intel.services.licensed_website_verification import promote_verified_website_leads
-from fortune_intel.services.registry_career_portal_runner import run_registry_career_portal_verifier
 from fortune_intel.services.reassessment import reassess_all_jobs
+from fortune_intel.services.registry_career_portal_runner import run_registry_career_portal_verifier
+from fortune_intel.services.source_approval import approve_source_candidate
+from fortune_intel.services.source_sync import sync_due_sources
 from fortune_intel.storage import JobRepository
 
 
@@ -222,7 +222,10 @@ def parser() -> argparse.ArgumentParser:
     verify_registry_portals.add_argument("--max-batches", type=int, default=100)
     verify_registry_portals.add_argument("--pace-seconds", type=float, default=0.5)
     verify_registry_portals.add_argument(
-        "--policy", action="append", default=cli_acquisition._environment_policies(), metavar="KIND=URL"
+        "--policy",
+        action="append",
+        default=cli_acquisition._environment_policies(),
+        metavar="KIND=URL",
     )
     verify_registry_portals.add_argument(
         "--policy-approved-at", default=os.getenv("ATS_POLICY_APPROVED_AT", "")
@@ -456,19 +459,29 @@ def main() -> None:
             if not separator or not kind.strip() or not url.strip() or kind.strip() in policies:
                 raise SystemExit("each --policy must use a unique KIND=URL")
             policies[kind.strip()] = url.strip()
-        print(json.dumps(promote_verified_discovery_leads(
-            repository,
-            actor=args.actor,
-            policy_urls=policies,
-            policy_approved_at=args.policy_approved_at,
-            limit=args.limit,
-        ), indent=2))
+        print(
+            json.dumps(
+                promote_verified_discovery_leads(
+                    repository,
+                    actor=args.actor,
+                    policy_urls=policies,
+                    policy_approved_at=args.policy_approved_at,
+                    limit=args.limit,
+                ),
+                indent=2,
+            )
+        )
     elif args.command == "verify-website-leads":
-        print(json.dumps(promote_verified_website_leads(
-            repository,
-            actor=args.actor,
-            limit=args.limit,
-        ), indent=2))
+        print(
+            json.dumps(
+                promote_verified_website_leads(
+                    repository,
+                    actor=args.actor,
+                    limit=args.limit,
+                ),
+                indent=2,
+            )
+        )
     elif args.command == "verify-registry-career-portals":
         try:
             policies: dict[str, str] = {}

@@ -83,12 +83,8 @@ def test_recruiting_path_source_builds_exact_public_and_cxs_urls():
     source = workday_source("wd1.myworkdaysite.com", "snapchat", "snap")
 
     assert source.key == "wd1.myworkdaysite.com|snapchat|snap"
-    assert source.public_base_url == (
-        "https://wd1.myworkdaysite.com/recruiting/snapchat/snap"
-    )
-    assert source.cxs_base_url == (
-        "https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap"
-    )
+    assert source.public_base_url == ("https://wd1.myworkdaysite.com/recruiting/snapchat/snap")
+    assert source.cxs_base_url == ("https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap")
     assert source.public_job_path_prefix == "/recruiting/snapchat/snap/job/"
 
 
@@ -108,12 +104,9 @@ def test_recruiting_path_source_fetches_manifest_and_detail_from_same_fixed_host
     assert result.jobs[0].url.startswith(
         "https://wd1.myworkdaysite.com/recruiting/snapchat/snap/job/"
     )
-    assert client.calls[0][0] == (
-        "https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap/jobs"
-    )
+    assert client.calls[0][0] == ("https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap/jobs")
     assert client.calls[1][0] == (
-        "https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap/"
-        "job/US-NY/Role-JR-1_JR-1"
+        "https://wd1.myworkdaysite.com/wday/cxs/snapchat/snap/job/US-NY/Role-JR-1_JR-1"
     )
 
 

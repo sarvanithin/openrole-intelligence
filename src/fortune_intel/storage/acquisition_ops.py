@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-
 _CODE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,63}$")
 _MIN_LEASE_SECONDS = 30
 _MAX_LEASE_SECONDS = 3_600

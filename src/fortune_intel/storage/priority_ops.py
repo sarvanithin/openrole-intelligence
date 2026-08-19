@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 EXACT_REVIEW_METHODS = (
     "reviewed_legal_name_domain",
     "reviewed_exact_legal_name",

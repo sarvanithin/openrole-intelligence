@@ -153,8 +153,7 @@ def test_http_client_posts_json_without_following_redirects():
 def test_http_client_retries_transient_redirect_at_original_fixed_url(status):
     clock = FakeClock()
     original_url = (
-        f"https://redirect-{status}.wd5.myworkdayjobs.com/"
-        f"wday/cxs/redirect-{status}/site/jobs"
+        f"https://redirect-{status}.wd5.myworkdayjobs.com/wday/cxs/redirect-{status}/site/jobs"
     )
     session = FakeSession(
         [
@@ -575,7 +574,17 @@ def _apple_job(identifier: str, *, country="United States of America"):
         "postDateInGMT": "2026-08-16T07:03:46.000Z",
         "postingDate": "Aug 16, 2026",
         "type": "Regular",
-        "locations": [{"postLocationId": "postLocation-USA", "city": "Cupertino", "stateProvince": "CA", "countryName": country, "countryID": "iso-country-USA" if country.startswith("United States") else "iso-country-CAN"}],
+        "locations": [
+            {
+                "postLocationId": "postLocation-USA",
+                "city": "Cupertino",
+                "stateProvince": "CA",
+                "countryName": country,
+                "countryID": "iso-country-USA"
+                if country.startswith("United States")
+                else "iso-country-CAN",
+            }
+        ],
     }
 
 
@@ -586,7 +595,10 @@ def test_apple_jobs_connector_reads_complete_public_us_pages():
 
     assert result.complete is True
     assert result.pages_fetched == 1
-    assert [job.external_job_id for job in result.jobs] == ["one:postLocation-USA", "two:postLocation-USA"]
+    assert [job.external_job_id for job in result.jobs] == [
+        "one:postLocation-USA",
+        "two:postLocation-USA",
+    ]
     assert result.jobs[0].url == "https://jobs.apple.com/en-us/details/one/apple-role-one"
     assert result.jobs[0].source_opened_at == "2026-08-16T07:03:46+00:00"
     assert client.calls[0][0].endswith("location=united-states-USA")
@@ -617,7 +629,9 @@ def test_build_connector_supports_launch_ats_kinds(kind, connector_type):
     client = StubClient([])
 
     connector = build_connector(
-        kind, "us" if connector_type in {AmazonJobsConnector, AppleJobsConnector} else "acme", client=client
+        kind,
+        "us" if connector_type in {AmazonJobsConnector, AppleJobsConnector} else "acme",
+        client=client,
     )
 
     assert isinstance(connector, connector_type)

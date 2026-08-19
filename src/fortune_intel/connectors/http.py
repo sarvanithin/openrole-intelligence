@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+import math
+import threading
+import time
 from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC
 from email.utils import parsedate_to_datetime
-import math
-import threading
-import time
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -89,9 +89,7 @@ def _is_retryable_status(status: int, url: str) -> bool:
     if status in _RETRYABLE_STATUSES:
         return True
     hostname = (urlsplit(url).hostname or "").casefold().rstrip(".")
-    is_workday_public_host = hostname.endswith(
-        (".myworkdayjobs.com", ".myworkdaysite.com")
-    )
+    is_workday_public_host = hostname.endswith((".myworkdayjobs.com", ".myworkdaysite.com"))
     return status in _RETRYABLE_WORKDAY_REDIRECT_STATUSES and is_workday_public_host
 
 

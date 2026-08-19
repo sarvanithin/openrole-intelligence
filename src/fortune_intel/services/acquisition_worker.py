@@ -21,7 +21,6 @@ from fortune_intel.services.source_approval import (
 from fortune_intel.storage import JobRepository
 from fortune_intel.storage.coverage_ops import normalize_public_url
 
-
 _RECENT_DISCOVERY_WINDOW = timedelta(hours=24)
 
 
@@ -373,9 +372,8 @@ def run_acquisition_worker(
     if normalized_stage not in ACQUISITION_STAGES:
         raise ValueError("stage must be website, discovery, or activation")
     client = None
-    if normalized_stage == "website":
-        if not wikimedia_user_agent.strip():
-            raise ValueError("Wikimedia user-agent is required for website tasks")
+    if normalized_stage == "website" and not wikimedia_user_agent.strip():
+        raise ValueError("Wikimedia user-agent is required for website tasks")
     claimed = repository.claim_acquisition_tasks(
         plan_id,
         lease_owner=lease_owner,
@@ -397,7 +395,7 @@ def run_acquisition_worker(
             try:
                 client = wikidata_client_factory(wikimedia_user_agent.strip())
                 website_query_result = client.query(sorted(ciks))
-            except Exception as error:
+            except Exception as error:  # noqa: BLE001 - third-party client failures are persisted per task.
                 website_query_error = error
     summary: dict[str, object] = {
         "plan_id": plan_id,
@@ -435,7 +433,7 @@ def run_acquisition_worker(
                     actor=actor,
                     activation_runner=activation_runner,
                 )
-        except Exception as error:
+        except Exception as error:  # noqa: BLE001 - each independent task must fail closed, not abort its batch.
             retryable = isinstance(
                 error,
                 (ConnectionError, RuntimeError, TimeoutError, sqlite3.OperationalError),

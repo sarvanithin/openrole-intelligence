@@ -46,9 +46,7 @@ def _candidate(row: dict[str, str], row_number: int) -> ReviewedSourceCandidate:
             values["candidate_url"], origin="primary-source-reviewed structured manifest"
         )
         if expected_kind == "official_structured"
-        else classify_ats_url(
-            values["candidate_url"], origin="primary-source-reviewed ATS URL"
-        )
+        else classify_ats_url(values["candidate_url"], origin="primary-source-reviewed ATS URL")
     )
     if classified is None:
         raise ValueError(f"row {row_number}: candidate_url is not a recognized exact ATS URL")
