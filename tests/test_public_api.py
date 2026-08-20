@@ -61,6 +61,8 @@ def test_job_api_can_filter_by_employer_posted_date_without_using_first_seen(tmp
         "/api/jobs",
         params={"q": "Opening window", "opened_within_days": 7},
     )
+    assert client.get("/api/jobs", params={"offset": 5001}).status_code == 200
+    assert client.get("/api/jobs", params={"offset": 250001}).status_code == 422
 
     assert response.status_code == 200
     assert response.json()["total"] == 1
