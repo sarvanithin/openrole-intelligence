@@ -86,6 +86,10 @@ h1 em { color: var(--green); font-style: normal; }
 h2 { font-size: clamp(30px, 4vw, 44px); }
 .section-heading p { color: var(--muted); font-size: 13px; }
 .job-list { border-top: 1px solid var(--line); }
+.load-more-wrap { display: flex; justify-content: center; padding-top: 26px; }
+.load-more { border: 1px solid var(--green); border-radius: 8px; padding: 11px 18px; background: transparent; color: var(--green-dark); font-weight: 700; cursor: pointer; }
+.load-more:hover:not(:disabled) { background: var(--mint); }
+.load-more:disabled { cursor: wait; opacity: .65; }
 .job-card { display: grid; grid-template-columns: 1fr auto; gap: 26px; padding: 26px 8px; border-bottom: 1px solid var(--line); transition: background .2s; }
 .job-card:hover { background: rgba(255,254,249,.7); }
 .job-card h3 { margin: 4px 0 9px; font-size: 20px; }

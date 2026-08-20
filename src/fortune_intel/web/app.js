@@ -107,7 +107,10 @@ async function loadStats() {
   }
 }
 
+const jobPageSize = 50;
 let latestJobsRequest = 0;
+let nextJobOffset = 0;
+let currentCompany = "";
 
 function replaceSearchUrl(company, filters) {
   const params = new URLSearchParams();
@@ -147,8 +150,12 @@ function loadSearchInputs() {
   return params.get("company") || "";
 }
 
-async function loadJobs(company = "") {
+async function loadJobs(company = "", { append = false } = {}) {
   const requestId = ++latestJobsRequest;
+  if (!append) {
+    nextJobOffset = 0;
+    currentCompany = company;
+  }
   const params = new URLSearchParams();
   const query = document.querySelector("#query").value.trim();
   const location = document.querySelector("#location").value.trim();
@@ -157,7 +164,7 @@ async function loadJobs(company = "") {
   const verifiedWithin = document.querySelector("#verified-within").value;
   const sort = document.querySelector("#sort").value;
   const filters = { query, location, tier, openedWithin, verifiedWithin, sort };
-  replaceSearchUrl(company, filters);
+  if (!append) replaceSearchUrl(company, filters);
   if (query) params.set("q", query);
   if (company) params.set("company", company);
   if (location) params.set("location", location);
@@ -165,20 +172,34 @@ async function loadJobs(company = "") {
   if (openedWithin) params.set("opened_within_days", openedWithin);
   if (verifiedWithin) params.set("verified_within_hours", verifiedWithin);
   if (sort !== "newest") params.set("sort", sort);
+  params.set("limit", String(jobPageSize));
+  params.set("offset", String(nextJobOffset));
 
   const list = document.querySelector("#job-list");
   const empty = document.querySelector("#empty-state");
+  const loadMore = document.querySelector("#load-more-jobs");
   const loading = element("div", "empty");
   loading.append(element("span", "", "Loading current openings…"));
   empty.hidden = true;
-  list.replaceChildren(loading);
+  if (append) {
+    loadMore.disabled = true;
+  } else {
+    list.replaceChildren(loading);
+  }
   const response = await fetch(`/api/jobs?${params}`);
   if (!response.ok) throw new Error("Unable to load jobs");
   const data = await response.json();
   if (requestId !== latestJobsRequest) return;
-  document.querySelector("#result-count").textContent = `${data.count} role${data.count === 1 ? "" : "s"} shown`;
-  list.replaceChildren(...data.items.map(jobCard));
+  nextJobOffset += data.count;
+  document.querySelector("#result-count").textContent = `${nextJobOffset} of ${data.total} role${data.total === 1 ? "" : "s"} shown`;
+  if (append) {
+    list.append(...data.items.map(jobCard));
+  } else {
+    list.replaceChildren(...data.items.map(jobCard));
+  }
   empty.hidden = data.items.length !== 0;
+  loadMore.hidden = nextJobOffset >= data.total;
+  loadMore.disabled = false;
 }
 
 document.querySelector("#search-form").addEventListener("submit", async (event) => {
@@ -192,6 +213,14 @@ document.querySelector("#clear-filters").addEventListener("click", async () => {
   try {
     await loadJobs();
     document.querySelector("#jobs").scrollIntoView({ behavior: "smooth" });
+  } catch (error) {
+    document.querySelector("#result-count").textContent = error.message;
+  }
+});
+
+document.querySelector("#load-more-jobs").addEventListener("click", async () => {
+  try {
+    await loadJobs(currentCompany, { append: true });
   } catch (error) {
     document.querySelector("#result-count").textContent = error.message;
   }
