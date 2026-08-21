@@ -96,6 +96,10 @@ async function loadStats() {
   document.querySelector("#stat-fetching-companies").textContent = Number(
     stats.companies_with_current_job_fetches,
   ).toLocaleString();
+  document.querySelector("#coverage-live").textContent = Number(
+    stats.companies_with_successful_job_fetches,
+  ).toLocaleString();
+  document.querySelector("#coverage-directory").textContent = Number(stats.companies).toLocaleString();
   document.querySelector("#stat-h1b").textContent = Number(stats.h1b_employers).toLocaleString();
   document.querySelector("#stat-evidence").textContent = Number(stats.jobs_with_evidence).toLocaleString();
   document.querySelector("#stat-freshness").textContent = stats.last_verified_at

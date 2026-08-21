@@ -79,6 +79,9 @@ h1 em { color: var(--green); font-style: normal; }
 .stats article:last-child { border: 0; }
 .stats strong { font-size: 26px; }
 .stats span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; }
+.coverage-note { max-width: 1040px; margin: 0 auto; padding: 18px 24px 0; color: var(--muted); font-size: 13px; text-align: center; }
+.coverage-note a { color: var(--green-dark); text-decoration: none; }
+.coverage-note a:hover { text-decoration: underline; }
 
 .explorer { max-width: 1160px; margin: 0 auto; padding: 78px 24px; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px; }
