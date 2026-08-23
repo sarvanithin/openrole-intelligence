@@ -33,6 +33,7 @@ _MYWORKDAYSITE_HOST_PATTERN = re.compile(r"^wd[0-9]+\.myworkdaysite\.com$")
 _IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _SOURCE_SEPARATOR = "|"
 _STALE_SOURCE_STATUSES = {404, 410, 422}
+_REPORTED_TOTAL_PROBE_THRESHOLD = 2_000
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,12 +113,16 @@ class WorkdayConnector:
         client: JsonHttpClient | None = None,
         detail_concurrency: int = 4,
         detail_client_factory: Callable[[], JsonHttpClient] | None = None,
+        reported_total_probe_threshold: int = _REPORTED_TOTAL_PROBE_THRESHOLD,
     ) -> None:
         self.workday = parse_workday_source_key(source_key)
         if not 1 <= page_size <= 20:
             raise ValueError("page_size must be between 1 and 20")
         self.page_size = page_size
         self.max_pages = max(1, max_pages)
+        if reported_total_probe_threshold < 1:
+            raise ValueError("reported_total_probe_threshold must be positive")
+        self.reported_total_probe_threshold = reported_total_probe_threshold
         self.client = client or JsonHttpClient()
         if not 1 <= detail_concurrency <= 8:
             raise ValueError("detail_concurrency must be between 1 and 8")
@@ -136,6 +141,7 @@ class WorkdayConnector:
         offset = 0
         pages = 0
         expected_total: int | None = None
+        reported_total_was_truncated = False
         list_url = f"{self.workday.cxs_base_url}/jobs"
 
         while pages < self.max_pages:
@@ -186,9 +192,14 @@ class WorkdayConnector:
                 )
                 return self._result(jobs, errors, pages)
 
-            if not postings and offset < expected_total:
-                errors.append(record_error(ValueError("pagination stopped before total")))
-                return self._result(jobs, errors, pages)
+            if not postings:
+                if offset < expected_total:
+                    errors.append(record_error(ValueError("pagination stopped before total")))
+                    return self._result(jobs, errors, pages)
+                break
+
+            if offset >= expected_total:
+                reported_total_was_truncated = True
 
             for posting in postings:
                 if self._is_non_actionable_placeholder(posting):
@@ -199,14 +210,9 @@ class WorkdayConnector:
             offset += len(postings)
             if offset >= expected_total:
                 if offset != expected_total:
-                    errors.append(
-                        record_error(
-                            ValueError(
-                                f"pagination returned {offset} summaries for total {expected_total}"
-                            )
-                        )
-                    )
-                break
+                    reported_total_was_truncated = True
+                if expected_total < self.reported_total_probe_threshold:
+                    break
         else:
             errors.append(record_error(ValueError(f"pagination exceeded {self.max_pages} pages")))
 
@@ -228,7 +234,11 @@ class WorkdayConnector:
             self.source,
             self.workday.key,
             tuple(jobs),
-            not errors and len(jobs) + non_actionable_placeholders == expected_total,
+            not errors
+            and (
+                reported_total_was_truncated
+                or len(jobs) + non_actionable_placeholders == expected_total
+            ),
             tuple(errors),
             pages,
         )

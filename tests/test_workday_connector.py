@@ -161,6 +161,63 @@ def test_paginates_by_reported_total_and_fetches_each_detail():
     assert client.calls[1][1]["offset"] == 1
 
 
+def test_probes_a_large_reported_total_boundary_before_marking_complete():
+    client = StubClient(
+        [
+            {"total": 2, "jobPostings": [workday_summary("JR-1")]},
+            {"total": 2, "jobPostings": [workday_summary("JR-2")]},
+            {"total": 2, "jobPostings": []},
+            workday_detail("JR-1"),
+            workday_detail("JR-2"),
+        ]
+    )
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(
+        key,
+        page_size=1,
+        reported_total_probe_threshold=2,
+        detail_concurrency=1,
+        client=client,
+    ).fetch()
+
+    assert result.complete is True
+    assert result.pages_fetched == 3
+    assert [call[1]["offset"] for call in client.calls[:3]] == [0, 1, 2]
+
+
+def test_continues_when_a_large_workday_reported_total_is_capped():
+    client = StubClient(
+        [
+            {"total": 2, "jobPostings": [workday_summary("JR-1")]},
+            {"total": 2, "jobPostings": [workday_summary("JR-2")]},
+            {"total": 2, "jobPostings": [workday_summary("JR-3")]},
+            {"total": 2, "jobPostings": []},
+            workday_detail("JR-1"),
+            workday_detail("JR-2"),
+            workday_detail("JR-3"),
+        ]
+    )
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(
+        key,
+        page_size=1,
+        reported_total_probe_threshold=2,
+        detail_concurrency=1,
+        client=client,
+    ).fetch()
+
+    assert result.complete is True
+    assert result.pages_fetched == 4
+    assert [job.external_job_id for job in result.jobs] == [
+        "opaque-JR-1",
+        "opaque-JR-2",
+        "opaque-JR-3",
+    ]
+    assert [call[1]["offset"] for call in client.calls[:4]] == [0, 1, 2, 3]
+
+
 def test_later_page_failure_stops_before_fetching_details():
     failure = HttpFailure("timeout", "timed out", "https://acme.wd5.myworkdayjobs.com", True, 3)
     client = StubClient(
