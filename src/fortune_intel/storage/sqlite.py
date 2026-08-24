@@ -270,7 +270,9 @@ class JobRepository(RepositoryOperations):
         if opened_within_days:
             if not 1 <= opened_within_days <= 365:
                 raise ValueError("opened_within_days must be between 1 and 365")
-            clauses.append("j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)")
+            clauses.append(
+                "j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)"
+            )
             params.append(f"-{opened_within_days} days")
         params.extend([min(max(limit, 1), 200), max(offset, 0)])
         with self.connect() as connection:
@@ -336,7 +338,9 @@ class JobRepository(RepositoryOperations):
         if opened_within_days:
             if not 1 <= opened_within_days <= 365:
                 raise ValueError("opened_within_days must be between 1 and 365")
-            clauses.append("j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)")
+            clauses.append(
+                "j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)"
+            )
             params.append(f"-{opened_within_days} days")
         with self.connect() as connection:
             row = connection.execute(
