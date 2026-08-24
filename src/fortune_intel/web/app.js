@@ -115,10 +115,12 @@ async function loadJobs(company = "") {
   const query = document.querySelector("#query").value.trim();
   const location = document.querySelector("#location").value.trim();
   const tier = document.querySelector("#tier").value;
+  const openedWithin = document.querySelector("#opened-within").value;
   if (query) params.set("q", query);
   if (company) params.set("company", company);
   if (location) params.set("location", location);
   if (tier) params.set("tier", tier);
+  if (openedWithin) params.set("opened_within_days", openedWithin);
 
   const list = document.querySelector("#job-list");
   const empty = document.querySelector("#empty-state");
