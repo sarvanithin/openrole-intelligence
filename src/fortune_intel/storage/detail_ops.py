@@ -61,14 +61,17 @@ class DetailOperationsMixin:
             ).fetchall()
         return [dict(row) for row in rows]
 
-    def readiness(self, *, production: bool = False) -> dict[str, object]:
+    def readiness(self, *, production: bool = False, deep: bool = True) -> dict[str, object]:
+        """Return readiness state; reserve full integrity scans for audits."""
+
         errors: list[str] = []
         with self.connect() as connection:
             errors.extend(validate_schema(connection))
             errors.extend(validate_job_geography(connection))
-            integrity = connection.execute("PRAGMA quick_check").fetchone()[0]
-            if integrity != "ok":
-                errors.append(f"database integrity: {integrity}")
+            if deep:
+                integrity = connection.execute("PRAGMA quick_check").fetchone()[0]
+                if integrity != "ok":
+                    errors.append(f"database integrity: {integrity}")
             synthetic = int(
                 connection.execute(
                     "SELECT COUNT(*) FROM companies WHERE is_synthetic = 1"

@@ -63,7 +63,10 @@ def create_app(
     @app.get("/readyz", include_in_schema=False)
     def readiness() -> dict[str, object]:
         try:
-            result = repository.readiness(production=settings.environment == "production")
+            result = repository.readiness(
+                production=settings.environment == "production",
+                deep=False,
+            )
         except Exception as error:
             raise HTTPException(status_code=503, detail="database unavailable") from error
         if not result["ready"]:
