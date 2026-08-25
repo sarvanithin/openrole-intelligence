@@ -1,3 +1,5 @@
+from datetime import UTC, datetime, timedelta
+
 from fastapi.testclient import TestClient
 
 from fortune_intel.api import create_app
@@ -30,6 +32,40 @@ def test_public_responses_have_security_headers_and_pagination(tmp_path):
     assert response.headers["x-frame-options"] == "DENY"
     assert "default-src 'self'" in response.headers["content-security-policy"]
     assert response.headers["x-request-id"]
+
+
+def test_job_api_can_filter_by_employer_posted_date_without_using_first_seen(tmp_path):
+    client, app = make_client(tmp_path)
+    company_id = app.state.repository.upsert_company("Opening Date Check")
+    today = datetime.now(UTC).date()
+    for external_id, source_opened_at in (
+        ("fresh", today.isoformat()),
+        ("old", (today - timedelta(days=8)).isoformat()),
+        ("missing", None),
+    ):
+        app.state.repository.upsert_job(
+            company_id,
+            JobRecord(
+                company_name="Opening Date Check",
+                title=f"Opening window {external_id}",
+                url=f"https://jobs.example.test/opening-window/{external_id}",
+                source="opening-date-test",
+                external_job_id=external_id,
+                location="Austin, TX",
+                source_opened_at=source_opened_at,
+            ),
+            assess_sponsorship(""),
+        )
+
+    response = client.get(
+        "/api/jobs",
+        params={"q": "Opening window", "opened_within_days": 7},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["title"] == "Opening window fresh"
+    assert client.get("/api/jobs", params={"opened_within_days": 366}).status_code == 422
 
 
 def test_methodology_reports_the_active_sponsorship_rule_version(tmp_path):
@@ -171,8 +207,13 @@ def test_dashboard_hidden_empty_state_cannot_display_with_results(tmp_path):
     assert "[hidden] { display: none !important; }" in stylesheet
     assert "empty.hidden = true;" in script
     assert "empty.hidden = data.items.length !== 0;" in script
-    assert "/assets/styles.css?v=7" in dashboard
-    assert "/assets/app.js?v=7" in dashboard
+    assert "/assets/styles.css?v=8" in dashboard
+    assert 'id="opened-within"' in dashboard
+    assert 'id="clear-filters"' in dashboard
+    assert "/assets/app.js?v=9" in dashboard
+    assert 'params.set("opened_within_days", openedWithin);' in script
+    assert "function replaceSearchUrl(company, filters)" in script
+    assert "function loadSearchInputs()" in script
 
 
 def test_source_status_does_not_leak_internal_urls_or_errors(tmp_path):

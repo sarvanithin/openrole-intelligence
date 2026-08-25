@@ -6,7 +6,7 @@
     <meta name="description" content="Explainable job and H-1B sponsorship intelligence." />
     <title>OpenRole Intelligence</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/styles.css?v=7" />
+    <link rel="stylesheet" href="/assets/styles.css?v=8" />
   </head>
   <body>
     <header class="site-header">
@@ -52,7 +52,19 @@
               <option value="E">E · Negative language detected</option>
             </select>
           </label>
-          <button type="submit">Explore roles <span>→</span></button>
+          <label>
+            <span>Opened</span>
+            <select id="opened-within" name="opened_within_days">
+              <option value="">Any employer-posted date</option>
+              <option value="1">Last 24 hours</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+            </select>
+          </label>
+          <div class="search-actions">
+            <button type="submit">Explore roles <span>→</span></button>
+            <button id="clear-filters" class="clear-filters" type="button">Clear</button>
+          </div>
         </form>
         <p class="disclaimer">
           Historical evidence is not a guarantee or legal advice. Every signal
@@ -106,6 +118,6 @@
       <span>Evidence-first job intelligence</span>
       <span><a href="/trust">Trust &amp; methodology</a> · Built for transparency, freshness, and correction.</span>
     </footer>
-    <script src="/assets/app.js?v=7" defer></script>
+    <script src="/assets/app.js?v=9" defer></script>
   </body>
 </html>

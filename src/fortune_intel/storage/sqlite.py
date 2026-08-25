@@ -239,6 +239,7 @@ class JobRepository(RepositoryOperations):
         company: str = "",
         location: str = "",
         tier: str = "",
+        opened_within_days: int = 0,
         status: str = "active",
         limit: int = 50,
         offset: int = 0,
@@ -266,6 +267,13 @@ class JobRepository(RepositoryOperations):
         if tier:
             clauses.append("j.sponsorship_tier = ?")
             params.append(tier.upper())
+        if opened_within_days:
+            if not 1 <= opened_within_days <= 365:
+                raise ValueError("opened_within_days must be between 1 and 365")
+            clauses.append(
+                "j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)"
+            )
+            params.append(f"-{opened_within_days} days")
         params.extend([min(max(limit, 1), 200), max(offset, 0)])
         with self.connect() as connection:
             rows = connection.execute(
@@ -301,6 +309,7 @@ class JobRepository(RepositoryOperations):
         company: str = "",
         location: str = "",
         tier: str = "",
+        opened_within_days: int = 0,
         status: str = "active",
         include_synthetic: bool = True,
         us_eligibility: str = "",
@@ -326,6 +335,13 @@ class JobRepository(RepositoryOperations):
         if tier:
             clauses.append("j.sponsorship_tier = ?")
             params.append(tier.upper())
+        if opened_within_days:
+            if not 1 <= opened_within_days <= 365:
+                raise ValueError("opened_within_days must be between 1 and 365")
+            clauses.append(
+                "j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)"
+            )
+            params.append(f"-{opened_within_days} days")
         with self.connect() as connection:
             row = connection.execute(
                 f"""

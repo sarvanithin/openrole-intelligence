@@ -61,14 +61,17 @@ h1 { margin-top: 20px; font-size: clamp(43px, 6vw, 76px); line-height: 1.04; fon
 h1 em { color: var(--green); font-style: normal; }
 .hero > p { max-width: 680px; margin: 24px auto 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
 
-.search-panel { max-width: 1100px; margin: 40px auto 0; padding: 9px; display: grid; grid-template-columns: 1.25fr 1fr 1fr auto; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 20px 60px rgba(32,48,39,.11); text-align: left; }
+.search-panel { max-width: 1240px; margin: 40px auto 0; padding: 9px; display: grid; grid-template-columns: 1.25fr 1fr 1fr .9fr auto; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 20px 60px rgba(32,48,39,.11); text-align: left; }
 .search-panel label { padding: 8px 18px; border-right: 1px solid var(--line); }
 .search-panel label span { display: block; margin-bottom: 5px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #808a85; }
 .search-panel input, .search-panel select { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); }
 .search-panel select { cursor: pointer; }
-.search-panel button { border: 0; padding: 0 22px; border-radius: 10px; background: var(--green); color: white; font-weight: 700; cursor: pointer; }
-.search-panel button:hover { background: var(--green-dark); }
-.search-panel button span { margin-left: 10px; }
+.search-actions { display: grid; gap: 6px; }
+.search-actions button { border: 0; padding: 0 22px; border-radius: 10px; background: var(--green); color: white; font-weight: 700; cursor: pointer; }
+.search-actions button:hover { background: var(--green-dark); }
+.search-actions button span { margin-left: 10px; }
+.search-actions .clear-filters { background: transparent; color: var(--green-dark); font-size: 12px; }
+.search-actions .clear-filters:hover { background: var(--mint); }
 .hero .disclaimer { font-size: 12px; color: #8a928e; }
 
 .stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 1320px; margin: 0 auto; padding: 34px 24px; border-bottom: 1px solid var(--line); }
@@ -151,7 +154,7 @@ td { font-size: 14px; }
   nav { display: none; }
   .search-panel { grid-template-columns: 1fr; }
   .search-panel label { border-right: 0; border-bottom: 1px solid var(--line); }
-  .search-panel button { min-height: 52px; }
+  .search-actions button { min-height: 52px; }
   .methodology { grid-template-columns: 1fr; gap: 30px; }
 }
 
