@@ -68,6 +68,20 @@ def test_job_api_can_filter_by_employer_posted_date_without_using_first_seen(tmp
     assert client.get("/api/jobs", params={"opened_within_days": 366}).status_code == 422
 
 
+def test_public_readiness_uses_lightweight_checks(tmp_path, monkeypatch):
+    client, app = make_client(tmp_path)
+    called = {}
+
+    def readiness(*, production, deep):
+        called.update(production=production, deep=deep)
+        return {"ready": True, "schema_version": 10, "errors": []}
+
+    monkeypatch.setattr(app.state.repository, "readiness", readiness)
+
+    assert client.get("/readyz").status_code == 200
+    assert called == {"production": False, "deep": False}
+
+
 def test_methodology_reports_the_active_sponsorship_rule_version(tmp_path):
     client, _ = make_client(tmp_path)
 
