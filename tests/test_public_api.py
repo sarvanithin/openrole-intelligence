@@ -209,8 +209,11 @@ def test_dashboard_hidden_empty_state_cannot_display_with_results(tmp_path):
     assert "empty.hidden = data.items.length !== 0;" in script
     assert "/assets/styles.css?v=8" in dashboard
     assert 'id="opened-within"' in dashboard
-    assert "/assets/app.js?v=8" in dashboard
+    assert 'id="clear-filters"' in dashboard
+    assert "/assets/app.js?v=9" in dashboard
     assert 'params.set("opened_within_days", openedWithin);' in script
+    assert "function replaceSearchUrl(company, filters)" in script
+    assert "function loadSearchInputs()" in script
 
 
 def test_source_status_does_not_leak_internal_urls_or_errors(tmp_path):

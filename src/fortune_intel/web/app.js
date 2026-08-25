@@ -109,6 +109,32 @@ async function loadStats() {
 
 let latestJobsRequest = 0;
 
+function replaceSearchUrl(company, filters) {
+  const params = new URLSearchParams();
+  if (filters.query) params.set("q", filters.query);
+  if (company) params.set("company", company);
+  if (filters.location) params.set("location", filters.location);
+  if (filters.tier) params.set("tier", filters.tier);
+  if (filters.openedWithin) params.set("opened_within_days", filters.openedWithin);
+  const search = params.toString();
+  history.replaceState(null, "", search ? `/?${search}#jobs` : "/");
+}
+
+function loadSearchInputs() {
+  const params = new URLSearchParams(window.location.search);
+  document.querySelector("#query").value = params.get("q") || "";
+  document.querySelector("#location").value = params.get("location") || "";
+  const tier = params.get("tier") || "";
+  if (["", "A", "B", "C", "D", "E"].includes(tier.toUpperCase())) {
+    document.querySelector("#tier").value = tier.toUpperCase();
+  }
+  const openedWithin = params.get("opened_within_days") || "";
+  if (["", "1", "7", "30"].includes(openedWithin)) {
+    document.querySelector("#opened-within").value = openedWithin;
+  }
+  return params.get("company") || "";
+}
+
 async function loadJobs(company = "") {
   const requestId = ++latestJobsRequest;
   const params = new URLSearchParams();
@@ -116,6 +142,8 @@ async function loadJobs(company = "") {
   const location = document.querySelector("#location").value.trim();
   const tier = document.querySelector("#tier").value;
   const openedWithin = document.querySelector("#opened-within").value;
+  const filters = { query, location, tier, openedWithin };
+  replaceSearchUrl(company, filters);
   if (query) params.set("q", query);
   if (company) params.set("company", company);
   if (location) params.set("location", location);
@@ -143,7 +171,17 @@ document.querySelector("#search-form").addEventListener("submit", async (event) 
   document.querySelector("#jobs").scrollIntoView({ behavior: "smooth" });
 });
 
-const initialCompany = new URLSearchParams(window.location.search).get("company") || "";
+document.querySelector("#clear-filters").addEventListener("click", async () => {
+  document.querySelector("#search-form").reset();
+  try {
+    await loadJobs();
+    document.querySelector("#jobs").scrollIntoView({ behavior: "smooth" });
+  } catch (error) {
+    document.querySelector("#result-count").textContent = error.message;
+  }
+});
+
+const initialCompany = loadSearchInputs();
 Promise.all([loadStats(), loadJobs(initialCompany)]).catch((error) => {
   document.querySelector("#result-count").textContent = error.message;
 });
