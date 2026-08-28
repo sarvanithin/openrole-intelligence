@@ -68,6 +68,41 @@ def test_job_api_can_filter_by_employer_posted_date_without_using_first_seen(tmp
     assert client.get("/api/jobs", params={"opened_within_days": 366}).status_code == 422
 
 
+def test_job_api_can_filter_by_the_last_time_a_role_was_verified(tmp_path):
+    client, app = make_client(tmp_path)
+    company_id = app.state.repository.upsert_company("Verification Freshness Check")
+    job_ids: dict[str, str] = {}
+    for external_id in ("current", "stale"):
+        job_ids[external_id] = app.state.repository.upsert_job(
+            company_id,
+            JobRecord(
+                company_name="Verification Freshness Check",
+                title=f"Verification window {external_id}",
+                url=f"https://jobs.example.test/verification-window/{external_id}",
+                source="verification-freshness-test",
+                external_job_id=external_id,
+                location="Austin, TX",
+            ),
+            assess_sponsorship(""),
+        )
+    stale_at = (datetime.now(UTC) - timedelta(hours=25)).isoformat()
+    with app.state.repository.connect() as connection:
+        connection.execute(
+            "UPDATE jobs SET last_seen_at = ? WHERE id = ?",
+            (stale_at, job_ids["stale"]),
+        )
+
+    response = client.get(
+        "/api/jobs",
+        params={"q": "Verification window", "verified_within_hours": 24},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["title"] == "Verification window current"
+    assert client.get("/api/jobs", params={"verified_within_hours": 169}).status_code == 422
+
+
 def test_public_readiness_uses_lightweight_checks(tmp_path, monkeypatch):
     client, app = make_client(tmp_path)
     called = {}
@@ -221,11 +256,13 @@ def test_dashboard_hidden_empty_state_cannot_display_with_results(tmp_path):
     assert "[hidden] { display: none !important; }" in stylesheet
     assert "empty.hidden = true;" in script
     assert "empty.hidden = data.items.length !== 0;" in script
-    assert "/assets/styles.css?v=8" in dashboard
+    assert "/assets/styles.css?v=9" in dashboard
     assert 'id="opened-within"' in dashboard
+    assert 'id="verified-within"' in dashboard
     assert 'id="clear-filters"' in dashboard
-    assert "/assets/app.js?v=9" in dashboard
+    assert "/assets/app.js?v=10" in dashboard
     assert 'params.set("opened_within_days", openedWithin);' in script
+    assert 'params.set("verified_within_hours", verifiedWithin);' in script
     assert "function replaceSearchUrl(company, filters)" in script
     assert "function loadSearchInputs()" in script
 
