@@ -6,7 +6,7 @@
     <meta name="description" content="Explainable job and H-1B sponsorship intelligence." />
     <title>OpenRole Intelligence</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/styles.css?v=8" />
+    <link rel="stylesheet" href="/assets/styles.css?v=9" />
   </head>
   <body>
     <header class="site-header">
@@ -59,6 +59,15 @@
               <option value="1">Last 24 hours</option>
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
+            </select>
+          </label>
+          <label>
+            <span>Verified</span>
+            <select id="verified-within" name="verified_within_hours">
+              <option value="">Any verification time</option>
+              <option value="6">Last 6 hours</option>
+              <option value="24">Last 24 hours</option>
+              <option value="72">Last 3 days</option>
             </select>
           </label>
           <div class="search-actions">
@@ -118,6 +127,6 @@
       <span>Evidence-first job intelligence</span>
       <span><a href="/trust">Trust &amp; methodology</a> · Built for transparency, freshness, and correction.</span>
     </footer>
-    <script src="/assets/app.js?v=9" defer></script>
+    <script src="/assets/app.js?v=10" defer></script>
   </body>
 </html>

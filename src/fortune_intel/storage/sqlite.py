@@ -240,6 +240,7 @@ class JobRepository(RepositoryOperations):
         location: str = "",
         tier: str = "",
         opened_within_days: int = 0,
+        verified_within_hours: int = 0,
         status: str = "active",
         limit: int = 50,
         offset: int = 0,
@@ -274,6 +275,13 @@ class JobRepository(RepositoryOperations):
                 "j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)"
             )
             params.append(f"-{opened_within_days} days")
+        if verified_within_hours:
+            if not 1 <= verified_within_hours <= 168:
+                raise ValueError("verified_within_hours must be between 1 and 168")
+            clauses.append(
+                "j.last_seen_at IS NOT NULL AND datetime(j.last_seen_at) >= datetime('now', ?)"
+            )
+            params.append(f"-{verified_within_hours} hours")
         params.extend([min(max(limit, 1), 200), max(offset, 0)])
         with self.connect() as connection:
             rows = connection.execute(
@@ -310,6 +318,7 @@ class JobRepository(RepositoryOperations):
         location: str = "",
         tier: str = "",
         opened_within_days: int = 0,
+        verified_within_hours: int = 0,
         status: str = "active",
         include_synthetic: bool = True,
         us_eligibility: str = "",
@@ -342,6 +351,13 @@ class JobRepository(RepositoryOperations):
                 "j.posted_at IS NOT NULL AND datetime(j.posted_at) >= datetime('now', ?)"
             )
             params.append(f"-{opened_within_days} days")
+        if verified_within_hours:
+            if not 1 <= verified_within_hours <= 168:
+                raise ValueError("verified_within_hours must be between 1 and 168")
+            clauses.append(
+                "j.last_seen_at IS NOT NULL AND datetime(j.last_seen_at) >= datetime('now', ?)"
+            )
+            params.append(f"-{verified_within_hours} hours")
         with self.connect() as connection:
             row = connection.execute(
                 f"""
