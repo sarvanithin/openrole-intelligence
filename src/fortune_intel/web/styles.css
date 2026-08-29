@@ -61,7 +61,7 @@ h1 { margin-top: 20px; font-size: clamp(43px, 6vw, 76px); line-height: 1.04; fon
 h1 em { color: var(--green); font-style: normal; }
 .hero > p { max-width: 680px; margin: 24px auto 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
 
-.search-panel { max-width: 1400px; margin: 40px auto 0; padding: 9px; display: grid; grid-template-columns: 1.25fr 1fr 1fr .9fr .9fr auto; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 20px 60px rgba(32,48,39,.11); text-align: left; }
+.search-panel { max-width: 1500px; margin: 40px auto 0; padding: 9px; display: grid; grid-template-columns: 1.15fr 1fr 1fr .9fr .9fr .8fr auto; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 20px 60px rgba(32,48,39,.11); text-align: left; }
 .search-panel label { padding: 8px 18px; border-right: 1px solid var(--line); }
 .search-panel label span { display: block; margin-bottom: 5px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #808a85; }
 .search-panel input, .search-panel select { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); }
@@ -149,6 +149,12 @@ td { font-size: 14px; }
 .pagination { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; color: var(--muted); font-size: 13px; }
 .pagination button { min-height: 40px; }
 .pagination button:disabled { opacity: .4; cursor: not-allowed; }
+
+@media (max-width: 1200px) {
+  .search-panel { max-width: 920px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .search-panel label:nth-of-type(3n) { border-right: 0; }
+  .search-actions { grid-column: 1 / -1; grid-template-columns: 1fr auto; min-height: 46px; }
+}
 
 @media (max-width: 850px) {
   nav { display: none; }

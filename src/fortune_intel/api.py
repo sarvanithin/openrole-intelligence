@@ -180,6 +180,7 @@ def create_app(
         tier: str = Query(default="", pattern="^[A-Ea-e]?$"),
         opened_within_days: int = Query(default=0, ge=0, le=365),
         verified_within_hours: int = Query(default=0, ge=0, le=168),
+        sort: str = Query(default="newest", pattern="^(newest|verified)$"),
         status: str = Query(default="active", pattern="^(active|closed)$"),
         limit: int = Query(default=50, ge=1, le=50),
         offset: int = Query(default=0, ge=0, le=5000),
@@ -191,15 +192,17 @@ def create_app(
             "tier": tier,
             "opened_within_days": opened_within_days,
             "verified_within_hours": verified_within_hours,
+            "sort": sort,
             "status": status,
             "include_synthetic": settings.show_synthetic,
             "us_eligibility": "eligible",
         }
         records = repository.list_jobs(**filters, limit=limit, offset=offset)
+        count_filters = {key: value for key, value in filters.items() if key != "sort"}
         return {
             "items": records,
             "count": len(records),
-            "total": repository.count_jobs(**filters),
+            "total": repository.count_jobs(**count_filters),
             "limit": limit,
             "offset": offset,
             "country_scope": COUNTRY_SCOPE,
