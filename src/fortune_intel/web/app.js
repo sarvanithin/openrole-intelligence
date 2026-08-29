@@ -119,6 +119,7 @@ function replaceSearchUrl(company, filters) {
   if (filters.verifiedWithin) {
     params.set("verified_within_hours", filters.verifiedWithin);
   }
+  if (filters.sort !== "newest") params.set("sort", filters.sort);
   const search = params.toString();
   history.replaceState(null, "", search ? `/?${search}#jobs` : "/");
 }
@@ -139,6 +140,10 @@ function loadSearchInputs() {
   if (["", "6", "24", "72"].includes(verifiedWithin)) {
     document.querySelector("#verified-within").value = verifiedWithin;
   }
+  const sort = params.get("sort") || "newest";
+  if (["newest", "verified"].includes(sort)) {
+    document.querySelector("#sort").value = sort;
+  }
   return params.get("company") || "";
 }
 
@@ -150,7 +155,8 @@ async function loadJobs(company = "") {
   const tier = document.querySelector("#tier").value;
   const openedWithin = document.querySelector("#opened-within").value;
   const verifiedWithin = document.querySelector("#verified-within").value;
-  const filters = { query, location, tier, openedWithin, verifiedWithin };
+  const sort = document.querySelector("#sort").value;
+  const filters = { query, location, tier, openedWithin, verifiedWithin, sort };
   replaceSearchUrl(company, filters);
   if (query) params.set("q", query);
   if (company) params.set("company", company);
@@ -158,6 +164,7 @@ async function loadJobs(company = "") {
   if (tier) params.set("tier", tier);
   if (openedWithin) params.set("opened_within_days", openedWithin);
   if (verifiedWithin) params.set("verified_within_hours", verifiedWithin);
+  if (sort !== "newest") params.set("sort", sort);
 
   const list = document.querySelector("#job-list");
   const empty = document.querySelector("#empty-state");

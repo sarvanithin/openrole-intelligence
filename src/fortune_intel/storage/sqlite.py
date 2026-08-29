@@ -241,6 +241,7 @@ class JobRepository(RepositoryOperations):
         tier: str = "",
         opened_within_days: int = 0,
         verified_within_hours: int = 0,
+        sort: str = "newest",
         status: str = "active",
         limit: int = 50,
         offset: int = 0,
@@ -282,6 +283,15 @@ class JobRepository(RepositoryOperations):
                 "j.last_seen_at IS NOT NULL AND datetime(j.last_seen_at) >= datetime('now', ?)"
             )
             params.append(f"-{verified_within_hours} hours")
+        sort_order = {
+            "newest": "datetime(COALESCE(j.posted_at, j.first_seen_at)) DESC, j.title ASC",
+            "verified": (
+                "datetime(j.last_seen_at) DESC, "
+                "datetime(COALESCE(j.posted_at, j.first_seen_at)) DESC, j.title ASC"
+            ),
+        }.get(sort)
+        if sort_order is None:
+            raise ValueError("sort must be newest or verified")
         params.extend([min(max(limit, 1), 200), max(offset, 0)])
         with self.connect() as connection:
             rows = connection.execute(
@@ -299,8 +309,7 @@ class JobRepository(RepositoryOperations):
                     c.name AS company_name, c.slug AS company_slug, c.ats_type
                 FROM jobs j JOIN companies c ON c.id = j.company_id
                 WHERE {" AND ".join(clauses)}
-                ORDER BY datetime(COALESCE(j.posted_at, j.first_seen_at)) DESC,
-                    j.title ASC
+                ORDER BY {sort_order}
                 LIMIT ? OFFSET ?
                 """,
                 params,
