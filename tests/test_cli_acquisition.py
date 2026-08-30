@@ -45,6 +45,7 @@ def test_cli_parses_acquisition_commands(monkeypatch):
         ]
     )
     scheduler = parser().parse_args(["run-discovery-scheduler"])
+    continuous = parser().parse_args(["run-acquisition-scheduler", "--max-cycles", "1"])
 
     assert create.scope == "all"
     assert create.companies_csv is None
@@ -57,6 +58,7 @@ def test_cli_parses_acquisition_commands(monkeypatch):
     assert scheduler.batch_size == 50
     assert scheduler.lease_seconds == 300
     assert scheduler.max_batches == 200
+    assert continuous.max_cycles == 1
 
 
 def test_cli_create_and_status_commands_use_durable_plan(tmp_path):

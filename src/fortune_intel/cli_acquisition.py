@@ -132,6 +132,12 @@ def add_acquisition_parsers(commands: argparse._SubParsersAction[Any]) -> None:
         "--poll-seconds", type=int, default=int(os.getenv("ACQUISITION_POLL_SECONDS", "60"))
     )
     continuous.add_argument(
+        "--max-cycles",
+        type=int,
+        default=None,
+        help="Stop after this many bounded acquisition cycles (for external schedulers)",
+    )
+    continuous.add_argument(
         "--batch-size", type=int, default=int(os.getenv("ACQUISITION_BATCH_SIZE", "50"))
     )
     continuous.add_argument(
@@ -250,6 +256,7 @@ def run_acquisition_command(
             continuous_acquisition_scheduler_loop(
                 repository,
                 poll_seconds=args.poll_seconds,
+                max_cycles=args.max_cycles,
                 cadence_seconds=args.cadence_seconds,
                 batch_size=args.batch_size,
                 lease_seconds=args.lease_seconds,
