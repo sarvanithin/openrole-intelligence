@@ -403,6 +403,7 @@ class WorkdayConnector:
             ).casefold()
         )
         allowed_host = external_host == self.workday.host or canonical_public_alias
+        strict_public_route = self.workday.uses_recruiting_path or canonical_public_alias
         if (
             parsed.scheme != "https"
             or not allowed_host
@@ -417,7 +418,7 @@ class WorkdayConnector:
             )
             or unsafe_path
             or (
-                self.workday.uses_recruiting_path
+                strict_public_route
                 and (
                     parsed.port is not None
                     or parsed.query

@@ -128,6 +128,25 @@ def test_accepts_workday_canonical_public_alias_for_same_tenant_and_site():
     )
 
 
+@pytest.mark.parametrize(
+    "suffix",
+    ["?source=aggregator", "#apply", "?", "#", "/../private"],
+)
+def test_rejects_ambiguous_canonical_public_aliases(suffix):
+    detail = workday_detail("JR-1")
+    detail["jobPostingInfo"]["externalUrl"] = (
+        f"https://wd5.myworkdaysite.com/recruiting/acme/External/job/US-NY/Role-JR-1_JR-1{suffix}"
+    )
+    client = StubClient([{"total": 1, "jobPostings": [workday_summary("JR-1")]}, detail])
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(key, client=client).fetch()
+
+    assert result.complete is False
+    assert result.jobs == ()
+    assert "configured Workday site" in result.errors[0].message
+
+
 def test_accepts_case_variant_of_same_workday_site_path():
     """Workday can capitalize a site path differently from its board URL."""
 
