@@ -389,13 +389,32 @@ class WorkdayConnector:
             segment in {".", ".."} or "/" in segment or "\\" in segment
             for segment in decoded_segments
         )
+        external_host = (parsed.hostname or "").casefold().rstrip(".")
+        # Workday boards can serve their anonymous CXS API from a tenant
+        # ``*.myworkdayjobs.com`` host while returning the applicant-facing URL
+        # from Workday's canonical ``wdN.myworkdaysite.com`` host. It is still
+        # the same board only when the URL repeats the exact tenant and site.
+        canonical_public_alias = _MYWORKDAYSITE_HOST_PATTERN.fullmatch(
+            external_host
+        ) is not None and parsed.path.casefold().startswith(
+            (
+                f"/recruiting/{quote(self.workday.tenant, safe='')}/"
+                f"{quote(self.workday.site, safe='')}/job/"
+            ).casefold()
+        )
+        allowed_host = external_host == self.workday.host or canonical_public_alias
         if (
             parsed.scheme != "https"
-            or (parsed.hostname or "").casefold().rstrip(".") != self.workday.host
+            or not allowed_host
             or parsed.username is not None
             or parsed.password is not None
             or parsed.port not in {None, 443}
-            or not parsed.path.startswith(self.workday.public_job_path_prefix)
+            or (
+                not canonical_public_alias
+                and not parsed.path.casefold().startswith(
+                    self.workday.public_job_path_prefix.casefold()
+                )
+            )
             or unsafe_path
             or (
                 self.workday.uses_recruiting_path

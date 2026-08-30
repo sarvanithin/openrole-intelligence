@@ -110,6 +110,40 @@ def test_recruiting_path_source_fetches_manifest_and_detail_from_same_fixed_host
     )
 
 
+def test_accepts_workday_canonical_public_alias_for_same_tenant_and_site():
+    """A tenant API host can return the same board's canonical apply URL."""
+
+    detail = workday_detail("JR-1")
+    detail["jobPostingInfo"]["externalUrl"] = (
+        "https://wd5.myworkdaysite.com/recruiting/acme/External/job/US-NY/Role-JR-1_JR-1"
+    )
+    client = StubClient([{"total": 1, "jobPostings": [workday_summary("JR-1")]}, detail])
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(key, client=client).fetch()
+
+    assert result.complete is True
+    assert result.jobs[0].url.startswith(
+        "https://wd5.myworkdaysite.com/recruiting/acme/External/job/"
+    )
+
+
+def test_accepts_case_variant_of_same_workday_site_path():
+    """Workday can capitalize a site path differently from its board URL."""
+
+    detail = workday_detail("JR-1")
+    detail["jobPostingInfo"]["externalUrl"] = (
+        "https://acme.wd5.myworkdayjobs.com/EXTERNAL/job/US-NY/Role-JR-1_JR-1"
+    )
+    client = StubClient([{"total": 1, "jobPostings": [workday_summary("JR-1")]}, detail])
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(key, client=client).fetch()
+
+    assert result.complete is True
+    assert result.jobs[0].url.endswith("/EXTERNAL/job/US-NY/Role-JR-1_JR-1")
+
+
 def test_fixture_preserves_exact_posting_date_and_native_id():
     client = StubClient(
         [
