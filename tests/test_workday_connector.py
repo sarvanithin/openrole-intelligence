@@ -326,6 +326,79 @@ def test_marks_manifest_incomplete_if_total_changes_during_pagination():
     assert "total changed" in result.errors[0].message
 
 
+def test_stops_when_public_workday_listing_repeats_a_page_after_total_cap():
+    """A capped board can reset offsets; never spin until the generic page limit."""
+
+    first = workday_summary("JR-1")
+    second = workday_summary("JR-2")
+    client = StubClient(
+        [
+            {"total": 2, "jobPostings": [first]},
+            {"total": 0, "jobPostings": [second]},
+            {"total": 2, "jobPostings": [first]},
+        ]
+    )
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(
+        key,
+        page_size=1,
+        reported_total_probe_threshold=2,
+        client=client,
+    ).fetch()
+
+    assert result.complete is False
+    assert result.jobs == ()
+    assert result.pages_fetched == 3
+    assert "repeated a listing page" in result.errors[0].message
+
+
+def test_uses_observed_workday_facets_to_complete_a_capped_public_board():
+    root = {
+        "total": 2,
+        "jobPostings": [workday_summary("ROOT")],
+        "facets": [
+            {
+                "facetParameter": "jobFamilyGroup",
+                "values": [
+                    {"id": "engineering", "count": 1},
+                    {"id": "sales", "count": 1},
+                    {"id": "marketing", "count": 1},
+                ],
+            }
+        ],
+    }
+    client = StubClient(
+        [
+            root,
+            {"total": 1, "jobPostings": [workday_summary("JR-1")]},
+            workday_detail("JR-1"),
+            {"total": 1, "jobPostings": [workday_summary("JR-2")]},
+            workday_detail("JR-2"),
+            {"total": 1, "jobPostings": [workday_summary("JR-3")]},
+            workday_detail("JR-3"),
+        ]
+    )
+    key = workday_source("acme.wd5.myworkdayjobs.com", "acme", "External").key
+
+    result = WorkdayConnector(
+        key,
+        reported_total_probe_threshold=2,
+        client=client,
+    ).fetch()
+
+    assert result.complete is True
+    assert result.pages_fetched == 4
+    assert [job.external_job_id for job in result.jobs] == [
+        "opaque-JR-1",
+        "opaque-JR-2",
+        "opaque-JR-3",
+    ]
+    assert client.calls[1][1]["appliedFacets"] == {"jobFamilyGroup": ["engineering"]}
+    assert client.calls[3][1]["appliedFacets"] == {"jobFamilyGroup": ["sales"]}
+    assert client.calls[5][1]["appliedFacets"] == {"jobFamilyGroup": ["marketing"]}
+
+
 def test_accepts_zero_total_sentinel_after_first_page():
     client = StubClient(
         [

@@ -114,6 +114,8 @@ class WorkdayConnector:
         detail_concurrency: int = 4,
         detail_client_factory: Callable[[], JsonHttpClient] | None = None,
         reported_total_probe_threshold: int = _REPORTED_TOTAL_PROBE_THRESHOLD,
+        _applied_facets: dict[str, list[str]] | None = None,
+        _allow_facet_sharding: bool = True,
     ) -> None:
         self.workday = parse_workday_source_key(source_key)
         if not 1 <= page_size <= 20:
@@ -127,6 +129,11 @@ class WorkdayConnector:
         if not 1 <= detail_concurrency <= 8:
             raise ValueError("detail_concurrency must be between 1 and 8")
         self.detail_concurrency = detail_concurrency
+        self._applied_facets = {
+            str(parameter): [str(value) for value in values]
+            for parameter, values in (_applied_facets or {}).items()
+        }
+        self._allow_facet_sharding = _allow_facet_sharding
         self._detail_client_factory = detail_client_factory or (
             JsonHttpClient if client is None else lambda: self.client
         )
@@ -142,6 +149,7 @@ class WorkdayConnector:
         pages = 0
         expected_total: int | None = None
         reported_total_was_truncated = False
+        seen_page_signatures: set[tuple[str, ...]] = set()
         list_url = f"{self.workday.cxs_base_url}/jobs"
 
         while pages < self.max_pages:
@@ -150,7 +158,7 @@ class WorkdayConnector:
                 payload = self.client.post_json(
                     list_url,
                     json_body={
-                        "appliedFacets": {},
+                        "appliedFacets": self._applied_facets,
                         "limit": self.page_size,
                         "offset": offset,
                         "searchText": "",
@@ -179,6 +187,31 @@ class WorkdayConnector:
             except (TypeError, ValueError) as error:
                 errors.append(record_error(error))
                 return self._result(jobs, errors, pages)
+
+            if pages == 1 and self._allow_facet_sharding:
+                facet_shards = self._facet_shards(payload, total)
+                if facet_shards is not None:
+                    parameter, values = facet_shards
+                    return self._fetch_faceted_manifest(parameter, values)
+
+            # Some public Workday tenants cap the reported total and reset the
+            # offset back to page one after that cap. Continuing would request
+            # the same jobs hundreds of times and falsely look like a slow
+            # board. A repeated page is never a complete manifest, so fail
+            # fast while preserving the previously successful job snapshot.
+            page_signature = self._page_signature(postings)
+            if postings and page_signature in seen_page_signatures:
+                errors.append(
+                    record_error(
+                        ValueError(
+                            "pagination repeated a listing page; public board offset "
+                            "is capped or reset"
+                        )
+                    )
+                )
+                return self._result(jobs, errors, pages)
+            if postings:
+                seen_page_signatures.add(page_signature)
 
             if expected_total is None:
                 expected_total = total
@@ -275,6 +308,112 @@ class WorkdayConnector:
         if total < 0:
             raise ValueError("job-list total must be a non-negative integer")
         return total, postings
+
+    def _fetch_faceted_manifest(
+        self,
+        parameter: str,
+        values: tuple[str, ...],
+    ) -> ConnectorResult:
+        """Fetch a capped public board through exclusive Workday facet shards."""
+
+        jobs: list[ConnectorJob] = []
+        errors: list[ConnectorError] = []
+        seen_ids: set[str] = set()
+        pages = 1  # The root response discovered the exact public facets.
+        for value in values:
+            result = WorkdayConnector(
+                self.workday.key,
+                page_size=self.page_size,
+                max_pages=self.max_pages,
+                client=self.client,
+                detail_concurrency=self.detail_concurrency,
+                detail_client_factory=self._detail_client_factory,
+                reported_total_probe_threshold=self.reported_total_probe_threshold,
+                _applied_facets={parameter: [value]},
+                _allow_facet_sharding=False,
+            ).fetch()
+            pages += result.pages_fetched
+            if not result.complete:
+                errors.extend(result.errors)
+                continue
+            for job in result.jobs:
+                if job.external_job_id in seen_ids:
+                    errors.append(
+                        record_error(
+                            ValueError(
+                                "a Workday job appeared in multiple facet shards; "
+                                "manifest cannot be proven complete"
+                            ),
+                            external_id=job.external_job_id,
+                        )
+                    )
+                    continue
+                seen_ids.add(job.external_job_id)
+                jobs.append(job)
+        return ConnectorResult(
+            self.source,
+            self.workday.key,
+            tuple(jobs),
+            not errors,
+            tuple(errors),
+            pages,
+        )
+
+    def _facet_shards(self, payload: object, total: int) -> tuple[str, tuple[str, ...]] | None:
+        """Choose observed finite facet buckets only when a root total is capped."""
+
+        if total < self.reported_total_probe_threshold or not isinstance(payload, dict):
+            return None
+        facets = payload.get("facets")
+        if not isinstance(facets, list):
+            return None
+        for facet in facets:
+            if not isinstance(facet, dict):
+                continue
+            parameter = clean_text(facet.get("facetParameter"))
+            raw_values = facet.get("values")
+            if not parameter or not isinstance(raw_values, list):
+                continue
+            values: list[tuple[str, int]] = []
+            for item in raw_values:
+                if not isinstance(item, dict):
+                    values = []
+                    break
+                identifier = clean_text(item.get("id"))
+                try:
+                    count = int(item.get("count"))
+                except (TypeError, ValueError):
+                    values = []
+                    break
+                if not identifier or count < 1 or count >= self.reported_total_probe_threshold:
+                    values = []
+                    break
+                values.append((identifier, count))
+            # More than one sub-cap bucket and an aggregate beyond the root
+            # total show that the anonymous root listing is capped. We submit
+            # only its observed public facet IDs back to the same endpoint.
+            if 2 <= len(values) <= 100 and sum(count for _, count in values) > total:
+                return parameter, tuple(identifier for identifier, _ in values)
+        return None
+
+    @staticmethod
+    def _page_signature(postings: list[dict[str, object]]) -> tuple[str, ...]:
+        """Fingerprint one listing page without trusting an unbounded payload."""
+
+        return tuple(
+            "\x1f".join(
+                (
+                    clean_text(posting.get("externalPath")),
+                    clean_text(posting.get("title")),
+                    "\x1e".join(
+                        clean_text(value)
+                        for value in posting.get("bulletFields", [])
+                        if isinstance(value, str)
+                    ),
+                )
+            )
+            for posting in postings
+        )
 
     @staticmethod
     def _detail_path(value: str) -> str:
