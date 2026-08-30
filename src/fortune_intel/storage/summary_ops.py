@@ -127,6 +127,14 @@ class SummaryOperationsMixin:
                     WHERE s.enabled = 1 AND s.last_success_at IS NOT NULL
                       AND (? = 1 OR source_company.is_synthetic = 0)
                   ) AS companies_with_successful_job_fetches,
+                  (
+                    SELECT COUNT(DISTINCT s.company_id)
+                    FROM career_sources s JOIN companies source_company
+                      ON source_company.id = s.company_id
+                    WHERE s.enabled = 1 AND s.last_success_at IS NOT NULL
+                      AND s.consecutive_failures < 2
+                      AND (? = 1 OR source_company.is_synthetic = 0)
+                  ) AS companies_with_current_job_fetches,
                   COUNT(CASE WHEN j.status = 'active' AND (? = 1 OR c.is_synthetic = 0)
                     AND (? = 0 OR j.us_eligibility = 'eligible') THEN 1 END) AS active_jobs,
                   COUNT(CASE WHEN j.status = 'active' AND j.sponsorship_tier IN ('A','B','C','E')
@@ -137,6 +145,7 @@ class SummaryOperationsMixin:
                 FROM jobs j JOIN companies c ON c.id = j.company_id
                 """,
                 (
+                    int(include_synthetic),
                     int(include_synthetic),
                     int(include_synthetic),
                     int(include_synthetic),

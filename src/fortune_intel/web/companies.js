@@ -20,7 +20,7 @@ async function loadCompanies() {
   const data = await response.json();
   if (requestId !== latestRequest) return;
   total = data.total;
-  const covered = data.items.filter((company) => company.source_last_success_at).length;
+  const covered = data.items.filter((company) => company.coverage_disposition === "supported").length;
   const rows = data.items.map((company) => {
     const row = document.createElement("tr");
     const name = document.createElement("a");
@@ -32,7 +32,13 @@ async function loadCompanies() {
       nameCell,
       cell(Number(company.active_jobs).toLocaleString()),
       cell(company.source_last_success_at ? new Date(company.source_last_success_at).toLocaleString() : "—"),
-      cell(company.source_last_success_at ? "Successfully covered" : company.coverage_disposition.replaceAll("_", " ")),
+      cell(
+        company.coverage_disposition === "supported"
+          ? "Current successful source"
+          : company.coverage_disposition === "stale"
+            ? "Stale — needs revalidation"
+            : company.coverage_disposition.replaceAll("_", " "),
+      ),
     );
     return row;
   });
