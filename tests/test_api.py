@@ -18,6 +18,7 @@ def test_search_api_and_stats(tmp_path):
     assert stats["active_jobs"] == 4
     assert stats["companies"] == 4
     assert stats["companies_with_successful_job_fetches"] == 0
+    assert stats["companies_with_current_job_fetches"] == 0
     assert stats["jobs_with_evidence"] == 3
 
 

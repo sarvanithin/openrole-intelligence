@@ -94,7 +94,7 @@ async function loadStats() {
   document.querySelector("#stat-jobs").textContent = Number(stats.active_jobs).toLocaleString();
   document.querySelector("#stat-companies").textContent = Number(stats.companies).toLocaleString();
   document.querySelector("#stat-fetching-companies").textContent = Number(
-    stats.companies_with_successful_job_fetches,
+    stats.companies_with_current_job_fetches,
   ).toLocaleString();
   document.querySelector("#stat-h1b").textContent = Number(stats.h1b_employers).toLocaleString();
   document.querySelector("#stat-evidence").textContent = Number(stats.jobs_with_evidence).toLocaleString();
