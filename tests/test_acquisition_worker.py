@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sqlite3
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -139,6 +140,36 @@ def test_website_worker_queries_only_frozen_exact_cik_and_commits_immediately(tm
     event = repository.company_coverage_events(1)[0]
     assert "exact SEC CIK 0000000001" in event["reason"]
     assert "P5531" in event["reason"]
+
+
+def test_worker_defers_a_task_when_its_final_write_is_locked(tmp_path, monkeypatch):
+    repository = JobRepository(tmp_path / "locked-write.db")
+    repository.initialize()
+    repository.upsert_company("Example", sec_cik="1")
+    plan_id = direct_plan(
+        repository,
+        stage="website",
+        snapshot={"identity_method": "exact_sec_cik", "sec_cik": "0000000001"},
+    )
+
+    def locked(*args, **kwargs):
+        raise sqlite3.OperationalError("database is locked")
+
+    monkeypatch.setattr(repository, "complete_acquisition_task", locked)
+    summary = run_acquisition_worker(
+        repository,
+        plan_id,
+        stage="website",
+        lease_owner="website-1",
+        lease_seconds=60,
+        wikimedia_user_agent="FortuneJobs/1.0 operator@example.org",
+        now=BASE,
+        wikidata_client_factory=lambda _: FakeWikidataClient(wikidata_result()),
+    )
+
+    assert summary["write_deferred"] == 1
+    assert summary["completed"] == 0
+    assert repository.list_acquisition_tasks(plan_id)[0]["status"] == "leased"
 
 
 def test_retryable_website_failure_waits_for_backoff_then_succeeds(tmp_path):

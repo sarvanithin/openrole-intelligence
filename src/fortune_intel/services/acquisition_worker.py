@@ -405,6 +405,7 @@ def run_acquisition_worker(
         "retry_scheduled": 0,
         "failed": 0,
         "lease_lost": 0,
+        "write_deferred": 0,
         "outcomes": [],
     }
     outcomes: list[dict[str, object]] = summary["outcomes"]  # type: ignore[assignment]
@@ -467,6 +468,14 @@ def run_acquisition_worker(
                 key = "completed"
             summary[key] = int(summary[key]) + 1
             outcomes.append({"task_id": task["id"], "outcome_code": outcome.code, "status": key})
+        except sqlite3.OperationalError as error:
+            # A source sync can be committing a large complete manifest.  Do not
+            # terminate the whole discovery cycle or mislabel the portal check as
+            # failed; leave the lease intact for the next bounded cycle.
+            summary["write_deferred"] = int(summary["write_deferred"]) + 1
+            outcomes.append(
+                {"task_id": task["id"], "outcome_code": "write_deferred", "error": str(error)}
+            )
         except ValueError as error:
             summary["lease_lost"] = int(summary["lease_lost"]) + 1
             outcomes.append(
