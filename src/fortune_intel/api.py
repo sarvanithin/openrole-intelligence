@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import sqlite3
 from pathlib import Path
+from threading import Lock
+from time import monotonic
+from typing import Any
 from xml.sax.saxutils import escape as xml_escape
 
 from fastapi import FastAPI, HTTPException, Query
@@ -24,6 +28,7 @@ from fortune_intel.storage.coverage_audit_ops import (
 )
 
 COUNTRY_SCOPE = "United States (50 states and Washington, DC)"
+_STATS_CACHE_SECONDS = 300.0
 
 
 def create_app(
@@ -44,6 +49,9 @@ def create_app(
     )
     app.state.repository = repository
     app.state.settings = settings
+    stats_cache: dict[str, Any] | None = None
+    stats_cache_at = 0.0
+    stats_cache_lock = Lock()
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
     if settings.cors_origins:
         app.add_middleware(
@@ -75,9 +83,25 @@ def create_app(
 
     @app.get("/api/stats")
     def stats() -> dict[str, object]:
-        result = repository.overview(include_synthetic=settings.show_synthetic, us_only=True)
-        result["h1b_employers"] = repository.h1b_overview()["employers"]
-        result["country_scope"] = COUNTRY_SCOPE
+        nonlocal stats_cache, stats_cache_at
+        now = monotonic()
+        with stats_cache_lock:
+            if stats_cache is not None and now - stats_cache_at < _STATS_CACHE_SECONDS:
+                return dict(stats_cache)
+        try:
+            result = repository.overview(include_synthetic=settings.show_synthetic, us_only=True)
+            result["h1b_employers"] = repository.h1b_overview()["employers"]
+            result["country_scope"] = COUNTRY_SCOPE
+        except sqlite3.OperationalError as error:
+            with stats_cache_lock:
+                if stats_cache is not None:
+                    return dict(stats_cache)
+            raise HTTPException(
+                status_code=503, detail="statistics temporarily unavailable"
+            ) from error
+        with stats_cache_lock:
+            stats_cache = dict(result)
+            stats_cache_at = now
         return result
 
     @app.get("/api/coverage")
