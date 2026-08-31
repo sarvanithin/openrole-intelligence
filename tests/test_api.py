@@ -1,5 +1,6 @@
-from fastapi.testclient import TestClient
 import sqlite3
+
+from fastapi.testclient import TestClient
 
 from fortune_intel.api import create_app
 from fortune_intel.seed import seed_demo
