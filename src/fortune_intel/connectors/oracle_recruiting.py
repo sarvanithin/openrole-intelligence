@@ -90,10 +90,10 @@ class OracleRecruitingConnector:
         self,
         source_key: str,
         *,
-        page_size: int = 25,
+        page_size: int = 100,
         max_pages: int = 500,
         client: JsonHttpClient | None = None,
-        detail_concurrency: int = 4,
+        detail_concurrency: int = 8,
         detail_client_factory: Callable[[], JsonHttpClient] | None = None,
     ) -> None:
         self.oracle = parse_oracle_recruiting_source_key(source_key)
