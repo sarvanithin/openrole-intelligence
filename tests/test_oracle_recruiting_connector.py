@@ -92,7 +92,7 @@ def test_fixture_preserves_exact_opening_timestamp_and_full_description():
         "https://edxn.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_4001/job/26069"
     )
     assert result.jobs[0].metadata["source_opened_at_field"] == ("ExternalPostedStartDate")
-    assert "finder=findReqs;siteNumber=CX_4001,limit=25,offset=0" in client.calls[0][0]
+    assert "finder=findReqs;siteNumber=CX_4001,limit=100,offset=0" in client.calls[0][0]
     assert "finder=ById;Id=26069,siteNumber=CX_4001" in client.calls[1][0]
 
 
