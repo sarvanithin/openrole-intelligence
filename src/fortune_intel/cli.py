@@ -33,8 +33,11 @@ from fortune_intel.importers.sec_websites import (
     SecSubmissionsWebsiteClient,
     import_sec_company_websites,
 )
-from fortune_intel.importers.source_candidates import import_reviewed_source_candidates
 from fortune_intel.importers.sources import import_source_registry
+from fortune_intel.importers.source_candidates import (
+    import_reviewed_source_candidates,
+    import_verified_employer_portals,
+)
 from fortune_intel.importers.website_leads import import_website_leads
 from fortune_intel.importers.websites import import_company_websites
 from fortune_intel.observability import configure_logging
@@ -154,6 +157,13 @@ def parser() -> argparse.ArgumentParser:
         "import-source-candidates", help="Import primary-source-reviewed exact ATS candidates"
     )
     source_candidates.add_argument("csv")
+
+    verified_portals = commands.add_parser(
+        "import-verified-employer-portals",
+        help="Import audited current official employer portals as reviewable ATS candidates",
+    )
+    verified_portals.add_argument("csv")
+    verified_portals.add_argument("--actor", required=True)
 
     jobseek_registry = commands.add_parser(
         "import-jobseek-board-registry",
@@ -416,6 +426,13 @@ def main() -> None:
         print(
             f"Imported {import_reviewed_source_candidates(repository, args.csv)} "
             "reviewed ATS candidates"
+        )
+    elif args.command == "import-verified-employer-portals":
+        print(
+            json.dumps(
+                import_verified_employer_portals(repository, args.csv, actor=args.actor),
+                indent=2,
+            )
         )
     elif args.command == "import-jobseek-board-registry":
         print(

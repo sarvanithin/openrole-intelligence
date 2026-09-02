@@ -2,7 +2,10 @@ import csv
 
 import pytest
 
-from fortune_intel.importers.source_candidates import import_reviewed_source_candidates
+from fortune_intel.importers.source_candidates import (
+    import_reviewed_source_candidates,
+    import_verified_employer_portals,
+)
 from fortune_intel.storage import JobRepository
 
 
@@ -137,17 +140,75 @@ def test_imports_explicit_primary_source_structured_manifest(tmp_path):
     registry = tmp_path / "structured.csv"
     _write(
         registry,
-        [{
-            "company_name": "Example",
-            "candidate_url": "https://careers.example.com/job-sitemap.xml",
-            "kind": "official_structured",
-            "source_url": "https://example.com/careers",
-            "verified_at": "2026-08-13T12:00:00+00:00",
-            "actor": "reviewer@example.org",
-        }],
+        [
+            {
+                "company_name": "Example",
+                "candidate_url": "https://careers.example.com/job-sitemap.xml",
+                "kind": "official_structured",
+                "source_url": "https://example.com/careers",
+                "verified_at": "2026-08-13T12:00:00+00:00",
+                "actor": "reviewer@example.org",
+            }
+        ],
     )
 
     assert import_reviewed_source_candidates(repository, registry) == 1
     candidate = repository.get_source_candidate(1)
     assert candidate["kind"] == "official_structured"
     assert candidate["evidence"]["source_url"] == "https://example.com/careers"
+
+
+def test_imports_only_supported_urls_from_an_audited_employer_portal_report(tmp_path):
+    repository = JobRepository(tmp_path / "verified-portals.db")
+    repository.initialize()
+    company_id = repository.upsert_company("Example")
+    registry = tmp_path / "verified-portals.csv"
+    fields = (
+        "company_id",
+        "company_name",
+        "verified_company_website",
+        "verified_job_url",
+        "verification_status",
+        "portal_scope",
+        "verification_date",
+        "verification_note",
+    )
+    rows = [
+        {
+            "company_id": company_id,
+            "company_name": "Example",
+            "verified_company_website": "https://example.com/",
+            "verified_job_url": "https://job-boards.greenhouse.io/example",
+            "verification_status": "verified_current_official_url",
+            "portal_scope": "official_job_or_careers_portal",
+            "verification_date": "2026-08-14",
+            "verification_note": "Reviewed from the employer website.",
+        },
+        {
+            "company_id": company_id,
+            "company_name": "Example",
+            "verified_company_website": "https://example.com/",
+            "verified_job_url": "https://example.com/careers",
+            "verification_status": "verified_current_official_url",
+            "portal_scope": "official_job_or_careers_portal",
+            "verification_date": "2026-08-14",
+            "verification_note": "Custom portal retained outside the candidate importer.",
+        },
+    ]
+    with registry.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    report = import_verified_employer_portals(repository, registry, actor="portal-auditor")
+
+    assert report == {
+        "rows_read": 2,
+        "imported": 1,
+        "existing": 0,
+        "skipped": 1,
+        "unmatched": 0,
+    }
+    candidate = repository.get_source_candidate(1)
+    assert candidate["kind"] == "greenhouse"
+    assert candidate["evidence"]["review_method"] == "audited_verified_employer_portal"
