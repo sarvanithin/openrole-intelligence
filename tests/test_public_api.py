@@ -61,6 +61,8 @@ def test_job_api_can_filter_by_employer_posted_date_without_using_first_seen(tmp
         "/api/jobs",
         params={"q": "Opening window", "opened_within_days": 7},
     )
+    assert client.get("/api/jobs", params={"offset": 5001}).status_code == 200
+    assert client.get("/api/jobs", params={"offset": 250001}).status_code == 422
 
     assert response.status_code == 200
     assert response.json()["total"] == 1
@@ -297,12 +299,17 @@ def test_dashboard_hidden_empty_state_cannot_display_with_results(tmp_path):
     assert 'id="verified-within"' in dashboard
     assert 'id="sort"' in dashboard
     assert 'id="clear-filters"' in dashboard
-    assert "/assets/app.js?v=11" in dashboard
+    assert 'id="load-more-jobs"' in dashboard
+    assert "/assets/app.js?v=12" in dashboard
     assert 'params.set("opened_within_days", openedWithin);' in script
     assert 'params.set("verified_within_hours", verifiedWithin);' in script
     assert 'params.set("sort", sort);' in script
     assert "function replaceSearchUrl(company, filters)" in script
     assert "function loadSearchInputs()" in script
+    assert "const jobPageSize = 50;" in script
+    assert 'params.set("offset", String(nextJobOffset));' in script
+    assert 'id="coverage-live"' in dashboard
+    assert 'id="coverage-directory"' in dashboard
 
 
 def test_source_status_does_not_leak_internal_urls_or_errors(tmp_path):

@@ -96,6 +96,10 @@
         <article><strong id="stat-evidence">—</strong><span>Jobs with evidence</span></article>
         <article><strong id="stat-freshness">—</strong><span>Last verified</span></article>
       </section>
+      <p class="coverage-note">
+        <a href="/companies"><strong id="coverage-live">—</strong> companies have a successfully synchronized job source</a>
+        out of <strong id="coverage-directory">—</strong> in the public directory. We report uncovered companies explicitly.
+      </p>
 
       <section id="jobs" class="explorer">
         <div class="section-heading">
@@ -106,6 +110,9 @@
           <p id="result-count" aria-live="polite">Loading jobs…</p>
         </div>
         <div id="job-list" class="job-list" aria-live="polite"></div>
+        <div class="load-more-wrap">
+          <button id="load-more-jobs" class="load-more" type="button" hidden>Load more roles</button>
+        </div>
         <div id="empty-state" class="empty" hidden>
           <strong>No matching roles</strong>
           <span>Try a broader search or another evidence tier.</span>
@@ -134,6 +141,6 @@
       <span>Evidence-first job intelligence</span>
       <span><a href="/trust">Trust &amp; methodology</a> · Built for transparency, freshness, and correction.</span>
     </footer>
-    <script src="/assets/app.js?v=11" defer></script>
+    <script src="/assets/app.js?v=12" defer></script>
   </body>
 </html>

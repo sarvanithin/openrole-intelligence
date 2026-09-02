@@ -207,7 +207,7 @@ def create_app(
         sort: str = Query(default="newest", pattern="^(newest|verified)$"),
         status: str = Query(default="active", pattern="^(active|closed)$"),
         limit: int = Query(default=50, ge=1, le=50),
-        offset: int = Query(default=0, ge=0, le=5000),
+        offset: int = Query(default=0, ge=0, le=250000),
     ) -> dict[str, object]:
         filters = {
             "query": q,
