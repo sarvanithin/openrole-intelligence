@@ -4,19 +4,36 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB.svg)](https://www.python.org/)
 
-**Open-source job intelligence for verified U.S. openings and explainable H-1B
-sponsorship evidence.**
+**Open-source job intelligence for verified U.S. job openings and explainable
+H-1B visa-sponsorship evidence.**
 
-OpenRole replaces spreadsheet-based job tracking with a transparent, local-first
-pipeline: verified employer sources, complete-manifest ingestion, U.S.-only public
-results, job freshness tracking, and evidence users can inspect. It is the next
-iteration of Fortune Job Scraper, designed to be useful to job seekers and safe to
-extend in public.
+OpenRole Intelligence helps U.S. job seekers find current roles directly from
+employer career sites and understand the sponsorship language in each posting. It
+replaces spreadsheet-based job tracking with a transparent, local-first pipeline:
+verified employer sources, complete-manifest ingestion, U.S.-only results, job
+freshness tracking, and evidence users can inspect. It is the next iteration of
+Fortune Job Scraper, designed to be useful to job seekers and safe to extend in
+public.
 
 > **No black-box sponsorship claims.** A Tier A result means the current job posting
 > contains an explicit, job-specific immigration sponsorship offer. A current posting
 > that denies sponsorship is Tier E and overrides employer history. Ambiguous or
 > conditional wording is not promoted to Tier A.
+
+## Our mission
+
+Finding an employer-sponsored role should not require trusting a black-box job
+board or a stale spreadsheet. OpenRole is building a public, evidence-first index
+where every result answers three practical questions:
+
+1. **Is this role open in the United States right now?**
+2. **Which employer-controlled source did it come from?**
+3. **What does the current posting actually say about sponsorship?**
+
+We want contributors to help make that index broader and more trustworthy: add a
+documented ATS connector, report an official career page, improve location or
+evidence rules, or make the product more accessible. Start with
+[CONTRIBUTING.md](CONTRIBUTING.md) and the public [roadmap](ROADMAP.md).
 
 ## Why OpenRole?
 
