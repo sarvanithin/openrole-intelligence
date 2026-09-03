@@ -165,6 +165,7 @@ def import_verified_employer_portals(
                 "SELECT company_id, kind, candidate_url FROM career_source_candidates"
             )
         )
+    coverage_updates: dict[int, str] = {}
     for row_number, row in enumerate(rows, start=2):
         report["rows_read"] += 1
         status = _value(row, "verification_status").casefold()
@@ -215,15 +216,17 @@ def import_verified_employer_portals(
             terms_status="review_required",
             discovered_at=verified_at,
         )
-        coverage = repository.get_company_coverage(company_id)
-        if coverage is not None and str(coverage["disposition"]) not in {"supported", "stale"}:
-            repository.set_company_disposition(
-                company_id,
-                "candidate",
-                reason="Audited current official employer portal uses a supported public ATS",
-                actor=actor,
-                reviewed_at=verified_at,
-            )
+        coverage_updates[company_id] = verified_at
         report["imported"] += 1
         existing_candidates.add(identity)
+    if coverage_updates:
+        with repository.connect() as connection:
+            for company_id, reviewed_at in coverage_updates.items():
+                connection.execute(
+                    """UPDATE company_coverage SET disposition = 'candidate',
+                        reason = 'Audited current official employer portal uses a supported public ATS',
+                        last_reviewed_at = ?, reviewed_by = ?, updated_at = ?
+                    WHERE company_id = ? AND disposition NOT IN ('supported', 'stale')""",
+                    (reviewed_at, actor.strip(), reviewed_at, company_id),
+                )
     return report
