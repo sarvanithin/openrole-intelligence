@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -133,3 +133,100 @@ def import_reviewed_source_candidates(repository: JobRepository, csv_path: str |
                 reviewed_at=seed.verified_at,
             )
     return len(resolved)
+
+
+def import_verified_employer_portals(
+    repository: JobRepository,
+    csv_path: str | Path,
+    *,
+    actor: str,
+) -> dict[str, int]:
+    """Import an audited employer-portal report without inventing a connector.
+
+    The report must identify a current official employer portal.  Only URLs
+    that match one of the platform's deterministic public connectors become
+    reviewable candidates; every other portal is deliberately skipped here.
+    """
+
+    if not actor.strip():
+        raise ValueError("actor is required")
+    report = {"rows_read": 0, "imported": 0, "existing": 0, "skipped": 0, "unmatched": 0}
+    with Path(csv_path).open(newline="", encoding="utf-8-sig") as handle:
+        rows = list(csv.DictReader(handle))
+    companies = {int(item["id"]): item for item in repository.list_companies()}
+    with repository.connect() as connection:
+        existing_candidates = {
+            (int(row["company_id"]), str(row["kind"]), str(row["base_url"]))
+            for row in connection.execute("SELECT company_id, kind, base_url FROM career_sources")
+        }
+        existing_candidates.update(
+            (int(row["company_id"]), str(row["kind"]), str(row["candidate_url"]))
+            for row in connection.execute(
+                "SELECT company_id, kind, candidate_url FROM career_source_candidates"
+            )
+        )
+    coverage_updates: dict[int, str] = {}
+    for row_number, row in enumerate(rows, start=2):
+        report["rows_read"] += 1
+        status = _value(row, "verification_status").casefold()
+        if status != "verified_current_official_url":
+            report["skipped"] += 1
+            continue
+        try:
+            company_id = int(_value(row, "company_id"))
+        except ValueError:
+            report["unmatched"] += 1
+            continue
+        company = companies.get(company_id)
+        if company is None or str(company["name"]) != _value(row, "company_name"):
+            report["unmatched"] += 1
+            continue
+        candidate_url = _value(row, "verified_job_url")
+        classified = classify_ats_url(candidate_url, origin="audited employer portal report")
+        if classified is None:
+            report["skipped"] += 1
+            continue
+        identity = (company_id, classified.connector_kind, classified.normalized_base_url)
+        if identity in existing_candidates:
+            report["existing"] += 1
+            continue
+        source_url = normalize_public_url(
+            _value(row, "verified_company_website"),
+            field=f"row {row_number} verified_company_website",
+        )
+        verified_date = _value(row, "verification_date")
+        try:
+            verified_at = datetime.fromisoformat(verified_date).replace(tzinfo=UTC).isoformat()
+        except ValueError as error:
+            raise ValueError(f"row {row_number}: invalid verification_date") from error
+        repository.upsert_source_candidate(
+            company_id,
+            candidate_url=classified.normalized_base_url,
+            kind=classified.connector_kind,
+            confidence=0.98,
+            evidence={
+                "review_method": "audited_verified_employer_portal",
+                "source_url": source_url,
+                "board_token": classified.board_token,
+                "classifier_evidence": list(classified.evidence),
+                "portal_scope": _value(row, "portal_scope"),
+                "verification_note": _value(row, "verification_note"),
+            },
+            robots_status="unknown",
+            terms_status="review_required",
+            discovered_at=verified_at,
+        )
+        coverage_updates[company_id] = verified_at
+        report["imported"] += 1
+        existing_candidates.add(identity)
+    if coverage_updates:
+        with repository.connect() as connection:
+            for company_id, reviewed_at in coverage_updates.items():
+                connection.execute(
+                    """UPDATE company_coverage SET disposition = 'candidate',
+                        reason = 'Audited current official employer portal uses a supported public ATS',
+                        last_reviewed_at = ?, reviewed_by = ?, updated_at = ?
+                    WHERE company_id = ? AND disposition NOT IN ('supported', 'stale')""",
+                    (reviewed_at, actor.strip(), reviewed_at, company_id),
+                )
+    return report
