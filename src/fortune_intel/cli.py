@@ -33,11 +33,11 @@ from fortune_intel.importers.sec_websites import (
     SecSubmissionsWebsiteClient,
     import_sec_company_websites,
 )
-from fortune_intel.importers.sources import import_source_registry
 from fortune_intel.importers.source_candidates import (
     import_reviewed_source_candidates,
     import_verified_employer_portals,
 )
+from fortune_intel.importers.sources import import_source_registry
 from fortune_intel.importers.website_leads import import_website_leads
 from fortune_intel.importers.websites import import_company_websites
 from fortune_intel.observability import configure_logging
